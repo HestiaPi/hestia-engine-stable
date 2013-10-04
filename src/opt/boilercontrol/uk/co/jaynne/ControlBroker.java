@@ -9,7 +9,7 @@ import uk.co.jaynne.dataobjects.ConfigObject;
 import uk.co.jaynne.datasource.ConfigSqlSource;
 import uk.co.jaynne.datasource.interfaces.ConfigSource;
 import uk.co.jaynne.gpio.GpioControl;
-import uk.co.jaynne.gpio.GpioControlPi4J;
+import uk.co.jaynne.gpio.GpioControlFramboos;
 import uk.co.jaynne.gpio.GpioPin;
 
 import java.text.*; //DecimalFormat
@@ -17,13 +17,13 @@ import java.text.*; //DecimalFormat
 public class ControlBroker {
 	public static GpioPin RELAY1 = GpioPin.PIN8_GPIO14; // water	
 	public static GpioPin RELAY2 = GpioPin.PIN10_GPIO15; // heating
-	public static GpioPin RELAY3 = GpioPin.PIN21_GPIO9; // backlight
-	//public static GpioPin RELAY3 = GpioPin.PIN26_GPIO7; // backlight
+	//public static GpioPin RELAY3 = GpioPin.PIN21_GPIO9; // backlight
+	public static GpioPin RELAY3 = GpioPin.PIN26_GPIO7; // backlight
 	
 	public static GpioPin SWITCH1 = GpioPin.PIN11_GPIO17; // boost water
 	public static GpioPin SWITCH2 = GpioPin.PIN18_GPIO24; // boost heating
 	public static GpioPin SWITCH3 = GpioPin.PIN15_GPIO22; // +
-	public static GpioPin SWITCH4 = GpioPin.PIN26_GPIO7; // -
+	public static GpioPin SWITCH4 = GpioPin.PIN21_GPIO9; // -
 	//DO NOT USE PIN23_GPIO11
 	
 	private static boolean RELAY_ON = true;
@@ -40,19 +40,16 @@ public class ControlBroker {
 	private long waterBoostOffTime = 0;
 	private boolean backlightOn = false;
 	
-	public boolean OverrideHeatingSchedule = false;
-	public boolean OverrideWaterSchedule = false;
-		
 	private GpioControl gpio;
 	
 	private ControlBroker() {
-		gpio = GpioControlPi4J.getInstance();
+		gpio = GpioControlFramboos.getInstance();
 		config = new ConfigSqlSource();
 		
     	//Start with water and heating off in case they have been left in an improper state
 		deactivateHeating();
 		deactivateWater();
-		turnBacklightOn();
+	    turnBacklightOn();
 	}
 	
 	private static class SingletonHolder { 
@@ -153,11 +150,149 @@ public class ControlBroker {
 	
 	public boolean toggleWaterBoostStatus() {
 		int boostTimeInMins = config.get("boostTime").getIntValue();
+		//geteth0();
+		//getwlan0();
 		//validatemac(); 
-		//readtemperature();
+		readtemperature();
 		return toggleWaterBoostStatus(boostTimeInMins);
 	}
+	
+	
+	public boolean readtemperature() {
+	    String s;
+	    Process p;
+	    int itemp_c;
+	    double temp_c;
+	    double temp_f;
+	    boolean retVal = false;
+	    String[] cmd = {
+	    		"/bin/sh",
+	    		"-c",
+	    		"cat /sys/bus/w1/devices/10-00080181edea/w1_slave | grep t= | cut -d= -f2"
+	    		};
+	    try {
+	    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
+	        //p = Runtime.getRuntime().exec("/opt/boilercontrol/getmac.sh");
+	    	p = Runtime.getRuntime().exec(cmd);
+	    	//p = Runtime.getRuntime().exec("/home/pi/scripts/gettemperature.sh");
+	        BufferedReader br = new BufferedReader(
+	            new InputStreamReader(p.getInputStream()));
+	        while ((s = br.readLine()) != null) {
+	        	itemp_c = Integer.parseInt(s);
+	        	temp_c = ((double) itemp_c)/1000.0;
+	        	temp_f = (temp_c*9/5)+32;
+	        	DecimalFormat dec = new DecimalFormat("###.##");
+	        	//System.out.println ("Temperature: " + itemp_c + " mC");
+	        	//System.out.println ("Temperature: " + temp_c + " C");
+	        	System.out.println("Temperature: " + dec.format(temp_c) + " C / " + dec.format(temp_f) + " F");
+    			retVal = true;
+	        }
+	        p.waitFor();
+	        //System.out.println ("exit: " + p.exitValue());
+	        p.destroy();
+	    } catch (Exception e) {System.out.println(e);}
+	    return retVal;
+	}
 
+	
+	public boolean validatemac() {
+		/**************************************************************/
+		/** This is a fct to lock the java executable file to the hw **/
+		/** currently not being used.                                **/
+		/**************************************************************/
+		
+	    String s;
+	    Process p;
+	    boolean retVal = false;
+	    String[] cmd = {
+	    		"/bin/sh",
+	    		"-c",
+	    		"ip addr show eth0 | grep link | awk '{print $2}'"
+	    		};
+	    try {
+	    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
+	        //p = Runtime.getRuntime().exec("/opt/boilercontrol/getmac.sh");
+	    	p = Runtime.getRuntime().exec(cmd);
+	        BufferedReader br = new BufferedReader(
+	            new InputStreamReader(p.getInputStream()));
+	        while ((s = br.readLine()) != null) {
+	        	//"b8:27:eb:94:dd:bf"
+	        	//if (s == "b8:27:eb:94:dd:bf")
+	        	
+	        	if (
+	        			(s.charAt(0) == 'b') &&
+	        			(s.charAt(1) == '8') &&
+	        			(s.charAt(3) == '2') &&
+	        			(s.charAt(4) == '7') &&
+	        			(s.charAt(6) == 'e') &&
+	        			(s.charAt(7) == 'b') &&
+	        			(s.charAt(9) == '9') &&
+	        			(s.charAt(10) == '4') &&
+	        			(s.charAt(12) == 'd') &&
+	        			(s.charAt(13) == 'd') &&
+	        			(s.charAt(15) == 'b') &&
+	        			(s.charAt(16) == 'f')
+	        			) 
+        		{
+        			//System.out.println ("MAC confirmed:" + s);
+        			retVal = true;
+        		}
+	        	else 
+	        	{
+	        		//System.out.println ("MAC altered!!!");
+	        	}
+	        }
+	        p.waitFor();
+	        //System.out.println ("exit: " + p.exitValue());
+	        p.destroy();
+	    } catch (Exception e) {System.out.println(e);}
+	    return retVal;
+	}
+	
+
+	
+	public void geteth0() {
+	    String s;
+	    Process p;
+	    String[] cmd = {
+	    		"/bin/sh",
+	    		"-c",
+	    		"ip addr show eth0 | grep inet | awk '{print $2}' | cut -d/ -f1"
+	    		};
+	    try {
+	    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
+	        p = Runtime.getRuntime().exec(cmd);
+	        BufferedReader br = new BufferedReader(
+	            new InputStreamReader(p.getInputStream()));
+	        while ((s = br.readLine()) != null)
+	            System.out.println("cmd eth0: " + s);
+	        p.waitFor();
+	        //System.out.println ("exit: " + p.exitValue());
+	        p.destroy();
+	    } catch (Exception e) {System.out.println(e);}
+	}
+	
+	public void getwlan0() {
+	    String s;
+	    Process p;
+	    String[] cmd = {
+	    		"/bin/sh",
+	    		"-c",
+	    		"ip addr show wlan0 | grep inet | awk '{print $2}' | cut -d/ -f1"
+	    		};
+	    try {
+	    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
+	        p = Runtime.getRuntime().exec(cmd);
+	        BufferedReader br = new BufferedReader(
+	            new InputStreamReader(p.getInputStream()));
+	        while ((s = br.readLine()) != null)
+	            System.out.println("cmd wlan0: " + s);
+	        p.waitFor();
+	        //System.out.println ("exit: " + p.exitValue());
+	        p.destroy();
+	    } catch (Exception e) {System.out.println(e);}
+	}
+	
 	public boolean toggleWaterBoostStatus(int minutes) {
 		if (isWaterBoostOn()) { //ON so turn off
 			System.out.println("WB:OFF");
@@ -256,6 +391,7 @@ public class ControlBroker {
 	}
 	
 	public boolean turnBacklightOff() {
+		System.out.println("turnBacklightOff()");
 		if (!isBacklightOn()) {
 			return true;
 		}
@@ -266,6 +402,7 @@ public class ControlBroker {
 	}
 	
 	public boolean turnBacklightOn() {
+		//System.out.println("turnBacklightOn()");
 		if (isBacklightOn()) {
 			return true;
 		}

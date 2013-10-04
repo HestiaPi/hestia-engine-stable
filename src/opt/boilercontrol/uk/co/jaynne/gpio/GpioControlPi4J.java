@@ -36,7 +36,7 @@ public class GpioControlPi4J implements GpioControl{
 	}
 	
 	@Override
-	public GpioPin setAsOutput(GpioPin pin) {
+	public synchronized GpioPin setAsOutput(GpioPin pin) {
 		if (outpins.containsKey(pin)) {
 			return pin; //already setup
 		}
@@ -51,7 +51,7 @@ public class GpioControlPi4J implements GpioControl{
 	}
 
 	@Override
-	public GpioPin setAsInput(GpioPin pin) {
+	public synchronized GpioPin setAsInput(GpioPin pin) {
 		if (inpins.containsKey(pin)) {
 			return pin; //already setup
 		}
@@ -66,7 +66,7 @@ public class GpioControlPi4J implements GpioControl{
 	}
 
 	@Override
-	public GpioPin setValue(GpioPin pin, boolean value) {
+	public synchronized GpioPin setValue(GpioPin pin, boolean value) {
 		//Check if this pin is assigned as an out pin
 		if (isInPin(pin)) {
 			setAsOutput(pin);
@@ -83,7 +83,7 @@ public class GpioControlPi4J implements GpioControl{
 	}
 
 	@Override
-	public boolean getValue(GpioPin pin) {
+	public synchronized boolean getValue(GpioPin pin) {
 		//Check if this pin is assigned as an out pin
 		if (isOutPin(pin)) {
 			setAsInput(pin);
@@ -107,7 +107,7 @@ public class GpioControlPi4J implements GpioControl{
 	}
 
 	@Override
-	public void close(GpioPin pin) {
+	public synchronized void close(GpioPin pin) {
 		//Close if outpin
 		if (isOutPin(pin)) {
 			outpins.get(pin).setShutdownOptions(true, outDefaultState);
@@ -119,15 +119,15 @@ public class GpioControlPi4J implements GpioControl{
 		}
 	}
 	
-	public boolean isInPin(GpioPin pin) {
+	public synchronized boolean isInPin(GpioPin pin) {
 		return inpins.containsKey(pin);
 	}
 	
-	public boolean isOutPin(GpioPin pin) {
+	public synchronized boolean isOutPin(GpioPin pin) {
 		return outpins.containsKey(pin);
 	}
 	
-	public void addListener(GpioPin pin, GpioListener listener) {
+	public synchronized void addListener(GpioPin pin, GpioListener listener) {
 		if (isOutPin(pin)) {
 			setAsInput(pin);
 		}
@@ -138,7 +138,7 @@ public class GpioControlPi4J implements GpioControl{
 		listenPin.addListener(listener);
 	}
 	
-	public void removeListeners(GpioPin pin){
+	public synchronized void removeListeners(GpioPin pin){
 		if (isOutPin(pin) || !isInPin(pin)) {
 			return;
 		}
@@ -151,8 +151,6 @@ public class GpioControlPi4J implements GpioControl{
 	 * @return int pin no
 	 */
 
-	/* RasPi Rev1 boards */
-/*
 	private Pin getPin(GpioPin pin) {
 		switch(pin) {
 			case PIN3_GPIO0: return Pin.GPIO_08;
@@ -175,9 +173,8 @@ public class GpioControlPi4J implements GpioControl{
 			default: return null;
 		}
 	}
-*/
-	
-	/* RasPi Rev2 boards */
+
+/*
 	private Pin getPin(GpioPin pin) {
 		switch(pin) {
 			case PIN3_GPIO2: return Pin.GPIO_08;
@@ -200,5 +197,5 @@ public class GpioControlPi4J implements GpioControl{
 			default: return null;
 		}
 	}
-
+*/
 }

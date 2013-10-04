@@ -6,7 +6,8 @@ package uk.co.jaynne.gpio;
  *
  */
 
-/* RasPi Rev1 boards */
+
+/* RasPi Rev1 */
 /**
  public enum GpioPin {
 	PIN1_3V3, PIN2_5V, PIN3_GPIO0, PIN4, PIN5_GPIO1, PIN6_GROUND, PIN7_GPIO4, 
@@ -16,9 +17,8 @@ package uk.co.jaynne.gpio;
 
 }
 /**/
-
-/* RasPi Rev2 boards */
-
+/* RasPi Rev2 boards have 3 different GPIOs */
+/**/
 public enum GpioPin {
 	PIN1_3V3, PIN2_5V, PIN3_GPIO2, PIN4, PIN5_GPIO3, PIN6_GROUND, PIN7_GPIO4, 
 	PIN8_GPIO14, PIN9, PIN10_GPIO15, PIN11_GPIO17, PIN12_GPIO18, PIN13_GPIO27, 
@@ -26,3 +26,4 @@ public enum GpioPin {
 	PIN20, PIN21_GPIO9, PIN22_GPIO25, PIN23_GPIO11, PIN24_GPIO8, PIN25, PIN26_GPIO7;
 
 }
+/**/

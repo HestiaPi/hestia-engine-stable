@@ -17,7 +17,7 @@ public class Scheduler extends Thread{
 			//Heating and water default to off
 			Calendar calendar = Calendar.getInstance();
 			
-			/**
+			/**/
 			TimeZone z = calendar.getTimeZone();
 		    int offset = z.getRawOffset();
 		    if(z.inDaylightTime(new Date())){
@@ -43,18 +43,13 @@ public class Scheduler extends Thread{
 				System.out.println("No schedules today");
 			} else {
 				
-				//System.out.println("Time: " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
-				System.out.println("Time: " + java.text.MessageFormat.format("{0,number,#00}", new Object[] {new Integer(calendar.get(Calendar.HOUR_OF_DAY))}) + ":" + java.text.MessageFormat.format("{0,number,#00}", new Object[] {new Integer(calendar.get(Calendar.MINUTE))}));
+				System.out.println("Time: " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
 				System.out.println("WB: " + control.isWaterBoostOn() + ", WB Finish: " + control.getWaterBoostOffTime());
 				System.out.println("HB: " + control.isHeatingBoostOn() + ", HB Finish: " + control.getHeatingBoostOffTime());
 				
-				//Additional debugging
-				//long remboosttime = (control.getHeatingBoostOffTime() - calendar.getTimeInMillis())/(1000*60);
-				//System.out.println("Remaining HB minutes:" + remboosttime);
-				
 				//Loop through all of todays schedules
 				for (ScheduleObject schedule : schedules) {
-					if (schedule.getEnabled()) { //if item is enabled
+					if (schedule.getEnabled()) { //if enabled
 						System.out.print("*");
 						System.out.print(schedule);
 						//if in active period
@@ -77,36 +72,24 @@ public class Scheduler extends Thread{
 			
 			//Change the heating controls based on the schedule
 			if (heating) { //scheduled so turn on
-				if (!control.OverrideHeatingSchedule)
-				{
-					//System.out.println("No override found so turning H:ON");
-					control.turnHeatingOn();
-				}
+				control.turnHeatingOn();
 			} else if (control.isHeatingBoostOn() && 
 					calendar.getTimeInMillis() > control.getHeatingBoostOffTime()) {
 				//If boost is on but it is past the boost time turn off
 				control.toggleHeatingBoostStatus();
 			} else { //no schedule or boost so turn off
-				//System.out.println("Turn override and heating OFF");
 				control.turnHeatingOff();
-				control.OverrideHeatingSchedule = false;
 			}
 			
 			//Change the water controls based on the schedule
 			if (water) { //scheduled so turn on
-				if (!control.OverrideWaterSchedule)
-				{
-					//System.out.println("No override found so turning W:ON");
-					control.turnWaterOn();
-				}
+				control.turnWaterOn();
 			} else if (control.isWaterBoostOn() && 
 					calendar.getTimeInMillis() > control.getWaterBoostOffTime()) {
 				//If boost is on but it is past the boost time turn off
 				control.toggleWaterBoostStatus();
 			} else { //no schedule or boost so turn off
-				//System.out.println("Turn override and water OFF");
 				control.turnWaterOff();
-				control.OverrideWaterSchedule = false;
 			}
 
 			try {

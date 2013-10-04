@@ -82,9 +82,10 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 								
 				DecimalFormat dec = new DecimalFormat("###.#");
 				double dTemp = readtemperature();
-				//dTemp = -201.47; //test value
+				//dTemp = -201.47;
 				if (dTemp%1 == 0)
 					iNoDec = true;
+				//TODO NEED TO MANAGE DISPLAY SPACE FOR NEGATIVE VALUES TOO
 				if (((dTemp > 99.999) && (dTemp < 999.999)) || ((dTemp < -99.999) && (dTemp > -999.999))) {//3 digits! - no space for degree symbol unless there are no decimals
 					if (iNoDec)
 						line2 = " " + dec.format(dTemp)+ "\u00DF" + "C W:";
@@ -169,8 +170,20 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		    double temp_c;
 		    double temp_f;
 		    double retVal = 0;
+		    
+		    /*
+		    String[] cmd = {
+		    		"/bin/sh",
+		    		"-c",
+		    		"FILE=$(ls /sys/bus/w1/devices/ | sort -f | head -1)",
+		    		"cat /sys/bus/w1/devices/$FILE/w1_slave | grep t= | cut -d= -f2"
+		    		};
+		    */
 
 		    try {
+		    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
+		        //p = Runtime.getRuntime().exec("/opt/boilercontrol/getmac.sh");
+		    	//p = Runtime.getRuntime().exec(cmd);
 		    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperature.sh");
 		        BufferedReader br = new BufferedReader(
 		            new InputStreamReader(p.getInputStream()));

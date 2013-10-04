@@ -84,12 +84,23 @@ public class GpioControlGpioJava implements GpioControl{
 	
 	private Boardpin getPin(GpioPin pin) { //TODO map all pins
 		switch(pin) {
-			case PIN26_GPIO7: return Boardpin.PIN26_GPIO7;
-			case PIN24_GPIO8: return Boardpin.PIN24_GPIO8;
-			case PIN22_GPIO25: return Boardpin.PIN22_GPIO25;
-			case PIN19_GPIO10: return Boardpin.PIN19_GPIO10;
-			case PIN18_GPIO24: return Boardpin.PIN18_GPIO24;
-			case PIN16_GPIO23: return Boardpin.PIN16_GPIO23;
+		  case PIN3_GPIO2: return Boardpin.GPIO_08;
+		  case PIN5_GPIO3: return Boardpin.GPIO_09;
+		  case PIN7_GPIO4: return Boardpin.GPIO_07;
+		  case PIN8_GPIO14: return Boardpin.GPIO_15;
+		  case PIN10_GPIO15: return Boardpin.GPIO_16;
+		  case PIN11_GPIO17: return Boardpin.GPIO_00;
+		  case PIN12_GPIO18: return Boardpin.GPIO_01;
+		  case PIN13_GPIO27: return Boardpin.GPIO_02;
+		  case PIN15_GPIO22: return Boardpin.GPIO_03;
+		  case PIN16_GPIO23: return Boardpin.GPIO_04;
+		  case PIN18_GPIO24: return Boardpin.GPIO_05;
+		  case PIN19_GPIO10: return Boardpin.GPIO_12;
+		  case PIN21_GPIO9: return Boardpin.GPIO_13;
+		  case PIN22_GPIO25: return Boardpin.GPIO_06;
+		  case PIN23_GPIO11: return Boardpin.GPIO_04;
+		  case PIN24_GPIO8: return Boardpin.GPIO_10;
+		  case PIN26_GPIO7: return Boardpin.GPIO_11;
 			default: return null;
 		}
 	}

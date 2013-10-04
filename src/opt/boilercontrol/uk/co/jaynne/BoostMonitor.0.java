@@ -1,19 +1,17 @@
 package uk.co.jaynne;
 
 import uk.co.jaynne.gpio.GpioControl;
-import uk.co.jaynne.gpio.GpioControlFramboos;
+import uk.co.jaynne.gpio.GpioControlPi4J;
 import uk.co.jaynne.gpio.GpioPin;
-import java.util.Date;
 
 public class BoostMonitor extends Thread{
 	private GpioPin pin;
 	private boolean heating;
 	private boolean water;
 	private boolean pinsHigh;
-	boolean status; 
-	private int bldelay = 20;  //in seconds
-	private long startTime = System.currentTimeMillis();
-	private long elapsedTime = 0L;
+	boolean status;
+	private int bltimeout = 0; 
+	private int bldelay = 50;  //10*200ms=2sec
 	
 	/**
 	 * Monitors a pin for presses and activates boost
@@ -29,7 +27,7 @@ public class BoostMonitor extends Thread{
 		this.pinsHigh = pinsHigh;
 	}
 	public void run() {
-		GpioControl gpio = GpioControlFramboos.getInstance();
+		GpioControl gpio = GpioControlPi4J.getInstance();
 		ControlBroker control = ControlBroker.getInstance();
 		gpio.setAsInput(pin);
 		
@@ -37,7 +35,9 @@ public class BoostMonitor extends Thread{
 			status = gpio.getValue(pin);
 			try {
 			if (status == pinsHigh) {
-				if (control.isBacklightOn()) {
+				bltimeout = 0;
+				if (control.isBacklightOn())
+				{
 					if (water) {
 						control.toggleWaterBoostStatus();
 					}
@@ -45,21 +45,23 @@ public class BoostMonitor extends Thread{
 						control.toggleHeatingBoostStatus();
 					}
 				}
-				control.turnBacklightOn();
-				startTime = System.currentTimeMillis(); // reset countdown
 				Thread.sleep(200); //sleep to ignore multiple presses
 			}
-			if (startTime > 0) {
-				elapsedTime = (new Date()).getTime() - startTime;
-			} else {
-				elapsedTime = 0;
+			if (bltimeout == 0)
+			{
+				bltimeout++;
+				control.turnBacklightOn();
 			}
-			
-			if (elapsedTime > (bldelay*1000)) {
-				startTime = 0L;
+			else if (bltimeout < bldelay)
+			{
+				bltimeout++;
+				Thread.sleep(200); // wait BL timeout interval
+			}
+			else if (bltimeout == bldelay)
+			{
+				bltimeout = bldelay+1;
 				control.turnBacklightOff();
 			}
-			
 			Thread.sleep(20);
 			} catch (InterruptedException e) {
 				break;
