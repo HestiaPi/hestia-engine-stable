@@ -15,7 +15,7 @@ import uk.co.jaynne.gpio.GpioPin;
 import java.text.*; //DecimalFormat
 
 public class ControlBroker {
-	public static GpioPin RELAY1 = GpioPin.PIN8_GPIO14; // water	
+	public static GpioPin RELAY1 = GpioPin.PIN8_GPIO14; // water
 	public static GpioPin RELAY2 = GpioPin.PIN10_GPIO15; // heating
 	//public static GpioPin RELAY3 = GpioPin.PIN21_GPIO9; // backlight
 	public static GpioPin RELAY3 = GpioPin.PIN26_GPIO7; // backlight
