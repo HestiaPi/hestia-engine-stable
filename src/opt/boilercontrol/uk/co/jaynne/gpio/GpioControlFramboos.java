@@ -107,7 +107,7 @@ public class GpioControlFramboos implements GpioControl{
 	 * @param pin GpioPin
 	 * @return int pin no
 	 */
-	private int getPin(GpioPin pin) { //TODO include all pins
+	private int getPin(GpioPin pin) { 
 		switch(pin) {
 			case PIN3_GPIO2: return 8;
 			case PIN5_GPIO3: return 9;
