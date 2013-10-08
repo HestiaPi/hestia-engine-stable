@@ -19,7 +19,7 @@ public class LcdOutput extends Thread{
 		String line1 = "";
 		String line2 = "";
 		int GibberishReset=0;
-		boolean RnD = true ; //Set to true for extra logging and faster testing
+		boolean RnD = true ; //TODO Set to true for extra logging and faster testing, disable upon release
 		
 		line1 = getssid();
 		line2 = getwlan0ip();
@@ -144,8 +144,8 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			}
 
 			
-			//System.out.println("L1:" + line1);
-			//System.out.println("L2:" + line2);
+			System.out.println("L1:" + line1);
+			System.out.println("L2:" + line2);
 			
 			lcd.write(LcdDisplay.LCD_LINE1, line1, LcdDisplay.CENTER);
 			lcd.write(LcdDisplay.LCD_LINE2, line2, LcdDisplay.CENTER);

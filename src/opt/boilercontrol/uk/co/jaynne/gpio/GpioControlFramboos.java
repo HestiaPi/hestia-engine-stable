@@ -111,20 +111,20 @@ public class GpioControlFramboos implements GpioControl{
 		switch(pin) {
 			case PIN3_GPIO2: return 8;
 			case PIN5_GPIO3: return 9;
-			case PIN7_GPIO4: return 7;			
+			case PIN7_GPIO4: return 7;
 			case PIN8_GPIO14: return 15; // water
 			case PIN10_GPIO15: return 16; // heating
 			case PIN11_GPIO17: return 0; // boost water
-			case PIN12_GPIO18: return 1;
-			case PIN13_GPIO27: return 2;
+			case PIN12_GPIO18: return 1; // LCD_D7
+			case PIN13_GPIO27: return 2; // LCD_D6
 			case PIN15_GPIO22: return 3; // +
-			case PIN16_GPIO23: return 4;
+			case PIN16_GPIO23: return 4; // LCD_D5
 			case PIN18_GPIO24: return 5; // boost heating
-			case PIN19_GPIO10: return 12;
+			case PIN19_GPIO10: return 12; // LCD_D4
 			case PIN21_GPIO9: return 13; // -
-			case PIN22_GPIO25: return 6;
+			case PIN22_GPIO25: return 6; // LCD_E
 			case PIN23_GPIO11: return 14;
-			case PIN24_GPIO8: return 10;
+			case PIN24_GPIO8: return 10; // LCD_RS
 			case PIN26_GPIO7: return 11; // backlight
 			default: return 9999;
 		}

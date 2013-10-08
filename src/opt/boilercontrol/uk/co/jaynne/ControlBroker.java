@@ -17,8 +17,7 @@ import java.text.*; //DecimalFormat
 public class ControlBroker {
 	public static GpioPin RELAY1 = GpioPin.PIN8_GPIO14; // water
 	public static GpioPin RELAY2 = GpioPin.PIN10_GPIO15; // heating
-	//public static GpioPin RELAY3 = GpioPin.PIN21_GPIO9; // backlight
-	public static GpioPin RELAY3 = GpioPin.PIN26_GPIO7; // backlight
+	public static GpioPin RELAY3 = GpioPin.PIN21_GPIO9; // backlight
 	
 	public static GpioPin SWITCH1 = GpioPin.PIN11_GPIO17; // boost water
 	public static GpioPin SWITCH2 = GpioPin.PIN18_GPIO24; // boost heating
@@ -26,11 +25,14 @@ public class ControlBroker {
 	public static GpioPin SWITCH4 = GpioPin.PIN21_GPIO9; // -
 	//DO NOT USE PIN23_GPIO11
 	
-	private static boolean RELAY_ON = true;
-//      private static boolean RELAY_ON = false;
-	private static boolean RELAY_OFF = false;
-//      private static boolean RELAY_OFF = true;
-
+//	private static boolean RELAY_ON = true;
+    private static boolean RELAY_ON = false;
+//	private static boolean RELAY_OFF = false;
+    private static boolean RELAY_OFF = true;
+    
+	private static boolean BL_RELAY_ON = true;
+	private static boolean BL_RELAY_OFF = false;
+	
 	private ConfigSource config;
 	private boolean heatingOn = false;
 	private boolean heatingOnBoost = false;
@@ -165,16 +167,20 @@ public class ControlBroker {
 	    double temp_c;
 	    double temp_f;
 	    boolean retVal = false;
+/**
 	    String[] cmd = {
 	    		"/bin/sh",
 	    		"-c",
 	    		"cat /sys/bus/w1/devices/10-00080181edea/w1_slave | grep t= | cut -d= -f2"
 	    		};
+/**/
 	    try {
 	    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
 	        //p = Runtime.getRuntime().exec("/opt/boilercontrol/getmac.sh");
-	    	p = Runtime.getRuntime().exec(cmd);
+//	    	p = Runtime.getRuntime().exec(cmd);
 	    	//p = Runtime.getRuntime().exec("/home/pi/scripts/gettemperature.sh");
+	    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperature.sh");
+	    	
 	        BufferedReader br = new BufferedReader(
 	            new InputStreamReader(p.getInputStream()));
 	        while ((s = br.readLine()) != null) {
@@ -391,11 +397,11 @@ public class ControlBroker {
 	}
 	
 	public boolean turnBacklightOff() {
-		System.out.println("turnBacklightOff()");
+		//System.out.println("turnBacklightOff()");
 		if (!isBacklightOn()) {
 			return true;
 		}
-		gpio.setValue(RELAY3, RELAY_OFF);
+		gpio.setValue(RELAY3, BL_RELAY_OFF);
 		backlightOn = false;
 		System.out.println("BL is OFF");
 		return true;
@@ -406,7 +412,7 @@ public class ControlBroker {
 		if (isBacklightOn()) {
 			return true;
 		}
-		gpio.setValue(RELAY3, RELAY_ON);
+		gpio.setValue(RELAY3, BL_RELAY_ON);
 		backlightOn = true;
 		System.out.println("BL is ON");
 		return true;

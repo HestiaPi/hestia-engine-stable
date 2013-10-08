@@ -82,7 +82,7 @@ public class GpioControlGpioJava implements GpioControl{
 		gpio.unexport(getPin(pin));
 	}
 	
-	private Boardpin getPin(GpioPin pin) { //TODO map all pins
+	private Boardpin getPin(GpioPin pin) {
 		switch(pin) {
 		  case PIN3_GPIO2: return Boardpin.GPIO_08;
 		  case PIN5_GPIO3: return Boardpin.GPIO_09;
@@ -98,10 +98,10 @@ public class GpioControlGpioJava implements GpioControl{
 		  case PIN19_GPIO10: return Boardpin.GPIO_12;
 		  case PIN21_GPIO9: return Boardpin.GPIO_13;
 		  case PIN22_GPIO25: return Boardpin.GPIO_06;
-		  case PIN23_GPIO11: return Boardpin.GPIO_04;
+		  case PIN23_GPIO11: return Boardpin.GPIO_14;
 		  case PIN24_GPIO8: return Boardpin.GPIO_10;
 		  case PIN26_GPIO7: return Boardpin.GPIO_11;
-			default: return null;
+		  default: return null;
 		}
 	}
 }

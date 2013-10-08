@@ -94,7 +94,14 @@ public class BoilerControl {
 		control.turnHeatingOff();
 		control.turnWaterOff();
 		control.turnBacklightOff();
-		control.close();
+		
+		//TODO
+		//control.close() leaves GPIO HIGH so if java exits, it will leave boiler ON !!!
+		//The normally on contact in the relay is used instead to avoid that
+		//and RELAY_ON = false; in ControlBroker.java
+		//if you dont call close() at the end, the GPIO pins will be left busy 
+		//and running java again will fail to control them, hence you will need to restart RasPi to fix
+		control.close();  
 		System.out.println("Exiting");
 	}
 }

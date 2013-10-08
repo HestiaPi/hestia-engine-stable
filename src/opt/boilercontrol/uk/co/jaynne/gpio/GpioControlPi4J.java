@@ -150,7 +150,7 @@ public class GpioControlPi4J implements GpioControl{
 	 * @param pin GpioPin
 	 * @return int pin no
 	 */
-
+/**
 	private Pin getPin(GpioPin pin) {
 		switch(pin) {
 			case PIN3_GPIO0: return Pin.GPIO_08;
@@ -167,14 +167,14 @@ public class GpioControlPi4J implements GpioControl{
 			case PIN19_GPIO10: return Pin.GPIO_12;
 			case PIN21_GPIO9: return Pin.GPIO_13;
 			case PIN22_GPIO25: return Pin.GPIO_06;
-			case PIN23_GPIO11: return Pin.GPIO_04;
+			case PIN23_GPIO11: return Pin.GPIO_14;
 			case PIN24_GPIO8: return Pin.GPIO_10;
 			case PIN26_GPIO7: return Pin.GPIO_11;
 			default: return null;
 		}
 	}
+/**/
 
-/*
 	private Pin getPin(GpioPin pin) {
 		switch(pin) {
 			case PIN3_GPIO2: return Pin.GPIO_08;
@@ -191,11 +191,10 @@ public class GpioControlPi4J implements GpioControl{
 			case PIN19_GPIO10: return Pin.GPIO_12;
 			case PIN21_GPIO9: return Pin.GPIO_13;
 			case PIN22_GPIO25: return Pin.GPIO_06;
-			case PIN23_GPIO11: return Pin.GPIO_04;
+			case PIN23_GPIO11: return Pin.GPIO_14;
 			case PIN24_GPIO8: return Pin.GPIO_10;
 			case PIN26_GPIO7: return Pin.GPIO_11;
 			default: return null;
 		}
 	}
-*/
 }

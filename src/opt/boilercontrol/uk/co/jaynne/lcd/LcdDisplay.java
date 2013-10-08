@@ -13,11 +13,12 @@ import uk.co.jaynne.gpio.GpioPin;
  */
 public class LcdDisplay {
 	private GpioControl gpio;
-	private GpioPin LCD_RS = GpioPin.PIN24_GPIO8; //TODO get from DB
+	private GpioPin LCD_RS = GpioPin.PIN24_GPIO8;
 	private GpioPin LCD_E = GpioPin.PIN22_GPIO25;
 	private GpioPin LCD_D4 = GpioPin.PIN19_GPIO10;
 	private GpioPin LCD_D5 = GpioPin.PIN16_GPIO23;
-	private GpioPin LCD_D6 = GpioPin.PIN13_GPIO27;
+	//private GpioPin LCD_D6 = GpioPin.PIN13_GPIO27; //Does not work in Raspi Rev2. Did not investigate further
+	private GpioPin LCD_D6 = GpioPin.PIN23_GPIO11;
 	private GpioPin LCD_D7 = GpioPin.PIN12_GPIO18;
 	private int LCD_WIDTH = 16;
 	private boolean LCD_CHR = true;
@@ -32,7 +33,6 @@ public class LcdDisplay {
 	
 	
 	private LcdDisplay() {
-//		gpio = GpioControlPi4J.getInstance();
         gpio = GpioControlFramboos.getInstance();
 		gpio.setAsOutput(LCD_RS);
 		gpio.setAsOutput(LCD_E);
