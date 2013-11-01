@@ -81,12 +81,16 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				//line2 = "BOOST W:";
 								
 				DecimalFormat dec = new DecimalFormat("###.#");
-				double dTemp = readtemperature();
+				control.readtemperature(); //This should be the only place where readtemperature() will be called from 
+				double dTemp = control.temp_c;
+				//System.out.printf("control.temp_c is %f\n", dTemp);
 				//dTemp = -201.47;
+				//dTemp = control.gettemp_c();
+				//System.out.printf("dTemp now is %f\n", dTemp);
 				if (dTemp%1 == 0)
 					iNoDec = true;
 				//TODO NEED TO MANAGE DISPLAY SPACE FOR NEGATIVE VALUES TOO
-				if (((dTemp > 99.999) && (dTemp < 999.999)) || ((dTemp < -99.999) && (dTemp > -999.999))) {//3 digits! - no space for degree symbol unless there are no decimals
+				if (((dTemp > 99.999) && (dTemp < 999.999)) || ((dTemp < -99.999) && (dTemp > -999.999))) { //3 integer digits! - no space for degree symbol unless there are no decimals
 					if (iNoDec)
 						line2 = " " + dec.format(dTemp)+ "\u00DF" + "C W:";
 					else
@@ -95,7 +99,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 					line2 += " H:";
 					line2 += (hBoost) ? "+" : "-";
 					line2 += "  ";
-				} else if ((dTemp > 9.999) || (dTemp < -9.999)) {//2 digits
+				} else if ((dTemp > 9.999) || (dTemp < -9.999)) { //2 integer digits
 					if (iNoDec)
 						line2 = dec.format(dTemp)+ ".0\u00DF" + "C W:";
 					else
@@ -144,8 +148,8 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			}
 
 			
-			System.out.println("L1:" + line1);
-			System.out.println("L2:" + line2);
+			//System.out.println("L1:" + line1);
+			//System.out.println("L2:" + line2);
 			
 			lcd.write(LcdDisplay.LCD_LINE1, line1, LcdDisplay.CENTER);
 			lcd.write(LcdDisplay.LCD_LINE2, line2, LcdDisplay.CENTER);
@@ -162,7 +166,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		System.out.println("LCD output interrupted");
 	}
 	
-	
+/**	
 	 double readtemperature() {
 		    String s;
 		    Process p;
@@ -171,19 +175,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		    double temp_f;
 		    double retVal = 0;
 		    
-		    /*
-		    String[] cmd = {
-		    		"/bin/sh",
-		    		"-c",
-		    		"FILE=$(ls /sys/bus/w1/devices/ | sort -f | head -1)",
-		    		"cat /sys/bus/w1/devices/$FILE/w1_slave | grep t= | cut -d= -f2"
-		    		};
-		    */
-
 		    try {
-		    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
-		        //p = Runtime.getRuntime().exec("/opt/boilercontrol/getmac.sh");
-		    	//p = Runtime.getRuntime().exec(cmd);
 		    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperature.sh");
 		        BufferedReader br = new BufferedReader(
 		            new InputStreamReader(p.getInputStream()));
@@ -191,10 +183,6 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		        	itemp_c = Integer.parseInt(s);
 		        	temp_c = ((double) itemp_c)/1000.0;
 		        	temp_f = (temp_c*9/5)+32;
-		        	//DecimalFormat dec = new DecimalFormat("###.##");
-		        	//System.out.println ("Temperature: " + itemp_c + " mC");
-		        	//System.out.println ("Temperature: " + temp_c + " C");
-		        	//System.out.println("Temperature: " + dec.format(temp_c) + " C / " + dec.format(temp_f) + " F");
 					retVal = temp_c;
 		        }
 		        p.waitFor();
@@ -203,6 +191,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		    } catch (Exception e) {System.out.println(e);}
 		    return retVal;
 		}
+/**/
 	 
 	 	String getwlan0ip() {
 		    String s;

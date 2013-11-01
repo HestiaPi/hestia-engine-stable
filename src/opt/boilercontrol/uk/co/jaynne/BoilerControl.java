@@ -24,17 +24,23 @@ public class BoilerControl {
 		Thread scheduler = new Thread(new Scheduler());
 		scheduler.start();
 		
-		//Monitors the water boost button for presses
 		boolean pinsHigh = false; //pins are default low
 		//Get the configured pins value
 		if (config.get("pinsHigh") != null) {
 			pinsHigh = config.get("pinsHigh").getBoolValue();
 		}
-		Thread wBoost = new Thread(new BoostMonitor(ControlBroker.SWITCH1, true, false, pinsHigh));
+		//Monitors the water boost button for presses
+		Thread wBoost = new Thread(new BoostMonitor(ControlBroker.SWITCH1, true, false, false, false, pinsHigh));
 		wBoost.start();
 		//Monitors the heating boost button for presses
-		Thread hBoost = new Thread(new BoostMonitor(ControlBroker.SWITCH2, false, true, pinsHigh));
+		Thread hBoost = new Thread(new BoostMonitor(ControlBroker.SWITCH2, false, true, false, false, pinsHigh));
 		hBoost.start();
+		//Monitors the temperature + button for presses
+		Thread plusmonitor = new Thread(new BoostMonitor(ControlBroker.SWITCH3, false, false, true, false, pinsHigh));
+		plusmonitor.start();
+		//Monitors the temperature - button for presses
+		Thread minusmonitor = new Thread(new BoostMonitor(ControlBroker.SWITCH4, false, false, false, true, pinsHigh));
+		minusmonitor.start();
 		//Socket server
 		Thread socketServer = new Thread(new SocketServer());
 		socketServer.start();
@@ -67,6 +73,12 @@ public class BoilerControl {
 			System.out.println("Stopping heating boost monitor");
 			hBoost.interrupt();
 			hBoost.join();
+			System.out.println("Stopping temperature + monitor");
+			plusmonitor.interrupt();
+			plusmonitor.join();
+			System.out.println("Stopping temperature - monitor");
+			minusmonitor.interrupt();
+			minusmonitor.join();
 			System.out.println("Stopping socket server");
 			socketServer.interrupt();
 			socketServer.join();
@@ -97,8 +109,6 @@ public class BoilerControl {
 		
 		//TODO
 		//control.close() leaves GPIO HIGH so if java exits, it will leave boiler ON !!!
-		//The normally on contact in the relay is used instead to avoid that
-		//and RELAY_ON = false; in ControlBroker.java
 		//if you dont call close() at the end, the GPIO pins will be left busy 
 		//and running java again will fail to control them, hence you will need to restart RasPi to fix
 		control.close();  

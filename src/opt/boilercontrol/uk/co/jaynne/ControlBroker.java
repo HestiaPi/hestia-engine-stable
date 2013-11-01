@@ -1,7 +1,7 @@
 package uk.co.jaynne;
 
 import java.util.Calendar;
-
+//import java.util.Date;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -24,7 +24,8 @@ public class ControlBroker {
 	public static GpioPin SWITCH1 = GpioPin.PIN11_GPIO17; // boost water
 	public static GpioPin SWITCH2 = GpioPin.PIN18_GPIO24; // boost heating
 	public static GpioPin SWITCH3 = GpioPin.PIN15_GPIO22; // +
-	public static GpioPin SWITCH4 = GpioPin.PIN21_GPIO9; // -
+	//public static GpioPin SWITCH4 = GpioPin.PIN21_GPIO9; // -
+	public static GpioPin SWITCH4 = GpioPin.PIN26_GPIO7; // -
 	//DO NOT USE PIN23_GPIO11
 	
 //	private static boolean RELAY_ON = true;
@@ -43,9 +44,14 @@ public class ControlBroker {
 	private boolean waterOnBoost = false;
 	private long waterBoostOffTime = 0;
 	private boolean backlightOn = false;
-	
 	private GpioControl gpio;
 	
+    public double temp_c;
+    public double temp_f;
+    public double desired_temp_c; //desired temperature in Celsius we wish to reach/keep
+    public double desired_temp_f;
+	
+    public long startTime =  System.currentTimeMillis();
 	private ControlBroker() {
 		gpio = GpioControlFramboos.getInstance();
 		config = new ConfigSqlSource();
@@ -80,7 +86,7 @@ public class ControlBroker {
 		return activateHeating();
 	}
 	
-	private boolean activateHeating() {
+	public boolean activateHeating() {
 		gpio.setValue(RELAY2, RELAY_ON);
 		heatingOn = true;
 		System.out.println("H:ON");
@@ -97,7 +103,7 @@ public class ControlBroker {
 		return deactivateHeating();
 	}
 	
-	private boolean deactivateHeating() {
+	public boolean deactivateHeating() {
 		gpio.setValue(RELAY2, RELAY_OFF);
 		heatingOn = false;
 		System.out.println("H:OFF");
@@ -116,7 +122,7 @@ public class ControlBroker {
 		return activateWater();
 	}
 	
-	private boolean activateWater() {
+	public boolean activateWater() {
 		gpio.setValue(RELAY1, RELAY_ON);
 		waterOn = true;
 		System.out.println("W:ON");
@@ -133,7 +139,7 @@ public class ControlBroker {
 		return deactivateWater();
 	}
 	
-	private boolean deactivateWater() {
+	public boolean deactivateWater() {
 		gpio.setValue(RELAY1, RELAY_OFF);
 		waterOn = false;
 		System.out.println("W:OFF");
@@ -157,8 +163,22 @@ public class ControlBroker {
 		//geteth0();
 		//getwlan0();
 		//validatemac(); 
-		readtemperature();
+		//readtemperature();
 		return toggleWaterBoostStatus(boostTimeInMins);
+	}
+	
+	public boolean keyPressed () {
+		startTime = System.currentTimeMillis(); // reset countdown with each keypress
+		return true;
+	}
+	
+	public boolean keyPressTimeReset () {
+		startTime = 0L;
+		return true;
+	}
+	
+	public long getLastKeyPressTime() {
+		return startTime;
 	}
 	
 	
@@ -166,23 +186,10 @@ public class ControlBroker {
 	    String s;
 	    Process p;
 	    int itemp_c;
-	    double temp_c;
-	    double temp_f;
 	    boolean retVal = false;
-/**
-	    String[] cmd = {
-	    		"/bin/sh",
-	    		"-c",
-	    		"cat /sys/bus/w1/devices/10-00080181edea/w1_slave | grep t= | cut -d= -f2"
-	    		};
-/**/
+
 	    try {
-	    	//System.out.println("eth0: ip addr show eth0 | grep inet | awk \'{print $2}\' | cut -d/ -f1");
-	        //p = Runtime.getRuntime().exec("/opt/boilercontrol/getmac.sh");
-//	    	p = Runtime.getRuntime().exec(cmd);
-	    	//p = Runtime.getRuntime().exec("/home/pi/scripts/gettemperature.sh");
 	    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperature.sh");
-	    	
 	        BufferedReader br = new BufferedReader(
 	            new InputStreamReader(p.getInputStream()));
 	        while ((s = br.readLine()) != null) {
@@ -190,9 +197,7 @@ public class ControlBroker {
 	        	temp_c = ((double) itemp_c)/1000.0;
 	        	temp_f = (temp_c*9/5)+32;
 	        	DecimalFormat dec = new DecimalFormat("###.##");
-	        	//System.out.println ("Temperature: " + itemp_c + " mC");
-	        	//System.out.println ("Temperature: " + temp_c + " C");
-	        	System.out.println("Temperature: " + dec.format(temp_c) + " C / " + dec.format(temp_f) + " F");
+	        	//System.out.println("Temperature: " + dec.format(temp_c) + " C / " + dec.format(temp_f) + " F");
     			retVal = true;
 	        }
 	        p.waitFor();
@@ -388,11 +393,11 @@ public class ControlBroker {
 	
 	public boolean toggleBacklight() {
 		if (isBacklightOn()) { //ON so turn off
-			System.out.println("BL was ON");
+			//System.out.println("BL was ON");
 			turnBacklightOff();
 			return isBacklightOn();
 		} else {
-			System.out.println("BL was OFF");
+			//System.out.println("BL was OFF");
 			turnBacklightOn();
 			return isBacklightOn();
 		}
@@ -405,7 +410,7 @@ public class ControlBroker {
 		}
 		gpio.setValue(RELAY3, BL_RELAY_OFF);
 		backlightOn = false;
-		System.out.println("BL is OFF");
+		//System.out.println("BL is OFF");
 		return true;
 	}
 	
@@ -416,7 +421,7 @@ public class ControlBroker {
 		}
 		gpio.setValue(RELAY3, BL_RELAY_ON);
 		backlightOn = true;
-		System.out.println("BL is ON");
+		//System.out.println("BL is ON");
 		return true;
 	}
 	
