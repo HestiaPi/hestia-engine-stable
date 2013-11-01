@@ -12,7 +12,7 @@ public class BoostMonitor extends Thread{
 	private boolean plus;
 	private boolean minus;
 	private boolean pinsHigh;
-	boolean status; 
+	boolean status;
 	private int bldelay = 20;  //in seconds
 	private long elapsedTime = 0L;
 	

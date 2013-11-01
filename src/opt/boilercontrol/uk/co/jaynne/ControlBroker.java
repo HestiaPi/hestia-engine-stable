@@ -155,7 +155,6 @@ public class ControlBroker {
 		} else {
 			return false;
 		}
-		
 	}
 	
 	public boolean toggleWaterBoostStatus() {
