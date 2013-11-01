@@ -84,5 +84,4 @@ public class BoostMonitor extends Thread{
 		gpio.close(pin);
 		System.out.println("Boost monitor interrupted");
 	}
-
 }

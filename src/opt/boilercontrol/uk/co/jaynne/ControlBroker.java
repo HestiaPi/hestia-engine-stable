@@ -250,7 +250,7 @@ public class ControlBroker {
         			//System.out.println ("MAC confirmed:" + s);
         			retVal = true;
         		}
-	        	else 
+	        	else
 	        	{
 	        		//System.out.println ("MAC altered!!!");
 	        	}
@@ -261,8 +261,6 @@ public class ControlBroker {
 	    } catch (Exception e) {System.out.println(e);}
 	    return retVal;
 	}
-	
-
 	
 	public void geteth0() {
 	    String s;
