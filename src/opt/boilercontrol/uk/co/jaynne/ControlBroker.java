@@ -46,10 +46,12 @@ public class ControlBroker {
 	private boolean backlightOn = false;
 	private GpioControl gpio;
 	
-    public double temp_c;
-    public double temp_f;
-    public double desired_temp_c; //desired temperature in Celsius we wish to reach/keep
-    public double desired_temp_f;
+    public double current_temp;
+    public double desired_temp = 22.0; //desired temperature (in Celsius) we wish to reach/keep
+    public double desired_temp_step = 0.5;
+	public boolean useCelsius = true; //TODO need to read this dynamically from configuration
+    
+	public double tempSensitivity = 1.0; //TODO this should be setup according to mode:Comfort/Economy/etc
 	
     public long startTime =  System.currentTimeMillis();
 	private ControlBroker() {
@@ -75,6 +77,7 @@ public class ControlBroker {
 	}
 	
 	public boolean turnHeatingOn() {
+		System.out.println("turnHeatingOn() called");
 		//check if the heating is already on
 		if (isHeatingOn()) {
 			return true;
@@ -82,7 +85,6 @@ public class ControlBroker {
 		if (isHolidayPeriod()) {
 			return false;
 		}
-		
 		return activateHeating();
 	}
 	
@@ -94,6 +96,7 @@ public class ControlBroker {
 	}
 	
 	public boolean turnHeatingOff() {
+		System.out.println("turnHeatingOff() called");
 		if (!isHeatingOn()) {
 			return true;
 		}
@@ -158,7 +161,9 @@ public class ControlBroker {
 	}
 	
 	public boolean toggleWaterBoostStatus() {
+		System.out.println("About to get boostTime from config");
 		int boostTimeInMins = config.get("boostTime").getIntValue();
+		System.out.println("boostTime copied OK");
 		//geteth0();
 		//getwlan0();
 		//validatemac(); 
@@ -180,11 +185,39 @@ public class ControlBroker {
 		return startTime;
 	}
 	
+	public void increaseDesiredTemp() {
+		desired_temp = desired_temp + desired_temp_step;
+	}
+	
+	public void decreaseDesiredTemp() {
+		desired_temp = desired_temp - desired_temp_step;
+	}
+	
+	public double getdesired_temp() {
+		return desired_temp;
+	}
+	
+	public void thermostat() {
+		if (isHeatingOn())
+		{
+			if (current_temp > (desired_temp + tempSensitivity)) {
+				System.out.println("Above range > deactivateHeating()");
+				//turnHeatingOff();
+				deactivateHeating();
+			}
+		} else {
+			if (current_temp < (desired_temp - tempSensitivity)) {
+				System.out.println("Below range > activateHeating()");
+				//turnHeatingOn();
+				activateHeating();
+			}
+		}
+	}
 	
 	public boolean readtemperature() {
 	    String s;
 	    Process p;
-	    int itemp_c;
+	    int itemp;
 	    boolean retVal = false;
 
 	    try {
@@ -192,11 +225,20 @@ public class ControlBroker {
 	        BufferedReader br = new BufferedReader(
 	            new InputStreamReader(p.getInputStream()));
 	        while ((s = br.readLine()) != null) {
-	        	itemp_c = Integer.parseInt(s);
-	        	temp_c = ((double) itemp_c)/1000.0;
-	        	temp_f = (temp_c*9/5)+32;
+	        	itemp = Integer.parseInt(s);
+	        	current_temp = ((double) itemp)/1000.0;
+	        	if (!useCelsius) {
+	        		current_temp = celsiusToFahrenheit(current_temp);
+	        	}
+	        	//temp_f = (temp*9/5)+32;
 	        	DecimalFormat dec = new DecimalFormat("###.##");
-	        	//System.out.println("Temperature: " + dec.format(temp_c) + " C / " + dec.format(temp_f) + " F");
+	        	/**/
+	        	if (useCelsius) {
+	        		System.out.println("Current Temperature: " + dec.format(current_temp) + " C, " + "Desired Temperature: " + dec.format(desired_temp));
+	        	} else {
+	        		System.out.println("Temperature: " + dec.format(current_temp) + " F");
+	        	}
+	        	/**/
     			retVal = true;
 	        }
 	        p.waitFor();
@@ -204,6 +246,10 @@ public class ControlBroker {
 	        p.destroy();
 	    } catch (Exception e) {System.out.println(e);}
 	    return retVal;
+	}
+	
+	public double celsiusToFahrenheit(double tempInitial) {
+			return (tempInitial*9/5)+32;
 	}
 
 	
@@ -343,10 +389,11 @@ public class ControlBroker {
 	}
 	
 	public boolean toggleHeatingBoostStatus(int minutes) {
+		System.out.println("toggleHeatingBoostStatus() called");
 		if (isHeatingBoostOn()) { //ON so turn off
 			System.out.println("HB:OFF");
 			heatingOnBoost = false;
-			turnHeatingOff();
+			//turnHeatingOff();
 			return isHeatingOn();
 		} else if (isHolidayPeriod()) {
 			System.out.println("HB:HOLIDAY");
@@ -359,7 +406,7 @@ public class ControlBroker {
 			long boostTimeInMillis = minutes * 60 * 1000;
 			heatingBoostOffTime = thistime + boostTimeInMillis;
 			heatingOnBoost = true;
-			turnHeatingOn();
+			//turnHeatingOn();
 			return isHeatingOn();
 		}
 	}

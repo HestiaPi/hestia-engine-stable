@@ -82,7 +82,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 								
 				DecimalFormat dec = new DecimalFormat("###.#");
 				control.readtemperature(); //This should be the only place where readtemperature() will be called from 
-				double dTemp = control.temp_c;
+				double dTemp = control.current_temp;
 				//System.out.printf("control.temp_c is %f\n", dTemp);
 				//dTemp = -201.47;
 				//dTemp = control.gettemp_c();
