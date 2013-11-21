@@ -29,9 +29,9 @@ public class ConfigSqlSource implements ConfigSource{
 			ResultSet resultSet = smt.query(sql);
 		
 			while (resultSet.next()) {
+				System.out.println("resultSet received!");
 				String value = resultSet.getString(VALUE);
 				String type = resultSet.getString(TYPE);
-				
 				switch (type) {
 					case "int": 
 						object = new ConfigObject(key, Integer.parseInt(value));

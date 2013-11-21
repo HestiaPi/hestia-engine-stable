@@ -161,13 +161,7 @@ public class ControlBroker {
 	}
 	
 	public boolean toggleWaterBoostStatus() {
-		System.out.println("About to get boostTime from config");
 		int boostTimeInMins = config.get("boostTime").getIntValue();
-		System.out.println("boostTime copied OK");
-		//geteth0();
-		//getwlan0();
-		//validatemac(); 
-		//readtemperature();
 		return toggleWaterBoostStatus(boostTimeInMins);
 	}
 	
