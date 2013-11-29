@@ -1,0 +1,48 @@
+#! /bin/bash
+# /etc/init.d/boilercontrol
+
+### BEGIN INIT INFO
+# Provides:          boilercontrol
+# Required-Start:    $all
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts boilercontrol
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+function start {
+    LC=$(screen -ls | grep boilercontrol | wc -l)
+    if [ $LC != 1 ]; then
+      cd /opt/boilercontrol
+      screen -d -m -p 0 -S 'boilercontrol' ./run.sh
+    else
+      echo "Boiler control is already running"
+    fi
+}
+
+function stop {
+    screen -r boilercontrol -X stuff "q$(printf \\r)"
+}
+
+case "$1" in
+  start)
+    echo "Starting boiler control"
+    start
+    ;;
+  stop)
+    echo "Stopping boiler control"
+    stop
+    ;;
+  restart)
+    echo "Restarting boiler control"
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: /etc/init.d/boilercontrol {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
