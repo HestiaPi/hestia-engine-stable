@@ -2,7 +2,7 @@
 DATE=$(date +%Y%m%d)
 MAC=$(ip addr show eth0 | grep link | awk '{print $2}')
 NAME=${MAC}_${DATE}
-find /var/log/ -name '*.log' -or -name 'dmesg' | xargs tar --no-recursion -czf alllogs.tgz
+find /var/log/ -name '*.log' | xargs tar --no-recursion -czf alllogs.tgz
 mv alllogs.tgz $NAME.tgz
 ftp -i -n isharemyprojects.com <<EOF
 user hestialogger@webpuzz.com password
