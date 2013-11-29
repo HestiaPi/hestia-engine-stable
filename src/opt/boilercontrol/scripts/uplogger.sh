@@ -1,4 +1,4 @@
-!/bin/sh
+#!/bin/sh
 DATE=$(date +%Y%m%d)
 MAC=$(ip addr show eth0 | grep link | awk '{print $2}')
 NAME=${MAC}_${DATE}
