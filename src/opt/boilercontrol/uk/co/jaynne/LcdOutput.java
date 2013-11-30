@@ -20,6 +20,15 @@ public class LcdOutput extends Thread{
 		String line2 = "";
 		int GibberishReset=0;
 		boolean RnD = true ; //TODO Set to true for extra logging and faster testing, disable upon release
+		boolean hBoost = false;
+		boolean wBoost = false;
+		boolean heating = false;
+		boolean water = false;
+		boolean holiday = false;
+		double dTemp = 0;
+		double dDesiredTemp = 0; 
+//		boolean iNoDec = false;		
+		
 		
 		line1 = getssid();
 		line2 = getwlan0ip();
@@ -59,21 +68,29 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 /**/
 			String time = timeFormat.format(cal.getTime());
 			//Get boost status
-			boolean hBoost = control.isHeatingBoostOn();
-			boolean wBoost = control.isWaterBoostOn();
+			hBoost = control.isHeatingBoostOn();
+			wBoost = control.isWaterBoostOn();
 			//Get heating and water status
-			boolean heating = control.isHeatingOn();
-			boolean water = control.isWaterOn();
+			heating = control.isHeatingOn();
+			water = control.isWaterOn();
 			//Get holiday status
-			boolean holiday = control.isHolidayPeriod();
+			holiday = control.isHolidayPeriod();
 			
-			boolean iNoDec = false;
+//			iNoDec = false;
 			
 			//Create output strings
+			//Current W/H status (not Boost)
+			/**
 			line1 = time + " W:";
 			line1 += (water) ? "+" : "-";
 			line1 += " H:";
 			line1 += (heating) ? "+" : "-";
+			/**/
+			line1 = time +"    W:";
+			line1 += (wBoost) ? "+" : "-";
+			line1 += " H:";
+			line1 += (hBoost) ? "+" : "-";
+			line1 += " ";
 			
 			if (holiday) {
 				line2 = "Holiday On";
@@ -82,14 +99,36 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 								
 				DecimalFormat dec = new DecimalFormat("###.#");
 				control.readtemperature(); //This should be the only place where readtemperature() will be called from 
-				double dTemp = control.current_temp;
+				dTemp = control.getcurrent_temp();
+				dDesiredTemp = control.getdesired_temp();
 				//System.out.printf("control.temp_c is %f\n", dTemp);
 				//dTemp = -201.47;
 				//dTemp = control.gettemp_c();
 				//System.out.printf("dTemp now is %f\n", dTemp);
+				
+				/**
 				if (dTemp%1 == 0)
 					iNoDec = true;
-				//TODO NEED TO MANAGE DISPLAY SPACE FOR NEGATIVE VALUES TOO
+				/**/
+				
+				line2 = dec.format(dTemp) + "\u00DF";
+				if (control.getuseCelsius())
+					line2 += "C";
+				else
+					line2 += "F";
+				if (dTemp%1 == 0) // Make the freed space from the missing .0
+					line2 += "  ";
+				line2 += " >> "; 
+				if (dDesiredTemp%1 == 0) // Make the freed space from the missing .0
+					line2 += "  ";
+				line2 += dec.format(dDesiredTemp) + "\u00DF";
+				if (control.getuseCelsius())
+					line2 += "C";
+				else
+					line2 += "F";
+				
+			    //TODO NEED TO MANAGE DISPLAY SPACE FOR NEGATIVE VALUES TOO
+				/**
 				if (((dTemp > 99.999) && (dTemp < 999.999)) || ((dTemp < -99.999) && (dTemp > -999.999))) { //3 integer digits! - no space for degree symbol unless there are no decimals
 					if (iNoDec)
 						line2 = " " + dec.format(dTemp)+ "\u00DF" + "C W:";
@@ -120,6 +159,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 					line2 += (hBoost) ? "+" : "-";
 					line2 += "  ";
 				}
+				/**/
 			}
 
 			/*****************************************************/
@@ -155,7 +195,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			lcd.write(LcdDisplay.LCD_LINE2, line2, LcdDisplay.CENTER);
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(1000); //TODO: This controls how responsive is the LCD. Need to adjust for production
 			} catch (InterruptedException e) {
 				break;
 			}
@@ -165,7 +205,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		lcd.close();
 		System.out.println("LCD output interrupted");
 	}
-	
+
 /**	
 	 double readtemperature() {
 		    String s;

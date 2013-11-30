@@ -47,9 +47,9 @@ public class ControlBroker {
 	private GpioControl gpio;
 	
     public double current_temp;
-    public double desired_temp = 22.0; //desired temperature (in Celsius) we wish to reach/keep
+    public double desired_temp = 22.0; //desired temperature (in Celsius) we wish to reach/keep. Default: 22.0
     public double desired_temp_step = 0.5;
-	public boolean useCelsius = true; //TODO need to read this dynamically from configuration
+	public boolean useCelsius = true; //TODO need to read this dynamically from configuration DB
     
 	public double tempSensitivity = 1.0; //TODO this should be setup according to mode:Comfort/Economy/etc
 	
@@ -187,8 +187,16 @@ public class ControlBroker {
 		desired_temp = desired_temp - desired_temp_step;
 	}
 	
+	public double getcurrent_temp() {
+		return current_temp;
+	}
+	
 	public double getdesired_temp() {
 		return desired_temp;
+	}
+	
+	public boolean getuseCelsius() {
+		return useCelsius;
 	}
 	
 	public void thermostat() {
