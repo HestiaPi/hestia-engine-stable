@@ -26,9 +26,9 @@ public class LcdOutput extends Thread{
 		boolean water = false;
 		boolean holiday = false;
 		double dTemp = 0;
-		double dDesiredTemp = 0; 
-//		boolean iNoDec = false;		
-		
+		double dDesiredTemp = 0;
+		int LCDRefreshDelay = 1000; //TODO: This controls how responsive is the LCD. Need to adjust for production
+		int readTempDelay = 0;
 		
 		line1 = getssid();
 		line2 = getwlan0ip();
@@ -86,11 +86,25 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			line1 += " H:";
 			line1 += (heating) ? "+" : "-";
 			/**/
+			
+			/**
 			line1 = time +"    W:";
 			line1 += (wBoost) ? "+" : "-";
 			line1 += " H:";
 			line1 += (hBoost) ? "+" : "-";
 			line1 += " ";
+			//"1234567890ABCDEF"
+			/**/
+			
+			if (!wBoost && !hBoost) {
+				line1 = time +"   No Boost";
+			} else if (wBoost && !hBoost) {
+				line1 = time +" WaterBoost";
+			} else if (!wBoost && hBoost) {
+				line1 = time +" Heat Boost";
+			} else if (wBoost && hBoost) {
+				line1 = time +" Both Boost";
+			}
 			
 			if (holiday) {
 				line2 = "Holiday On";
@@ -98,18 +112,18 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				//line2 = "BOOST W:";
 								
 				DecimalFormat dec = new DecimalFormat("###.#");
-				control.readtemperature(); //This should be the only place where readtemperature() will be called from 
+				if (readTempDelay == 0) {
+					control.readtemperature(); //This should be the only place where readtemperature() will be called from
+					readTempDelay++;
+				} else if (readTempDelay < (5000/LCDRefreshDelay)) { // Re-read current temperature every 5 seconds only
+					readTempDelay++;
+				} else {
+					readTempDelay = 0;
+				}
 				dTemp = control.getcurrent_temp();
 				dDesiredTemp = control.getdesired_temp();
-				//System.out.printf("control.temp_c is %f\n", dTemp);
 				//dTemp = -201.47;
-				//dTemp = control.gettemp_c();
 				//System.out.printf("dTemp now is %f\n", dTemp);
-				
-				/**
-				if (dTemp%1 == 0)
-					iNoDec = true;
-				/**/
 				
 				line2 = dec.format(dTemp) + "\u00DF";
 				if (control.getuseCelsius())
@@ -126,40 +140,6 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 					line2 += "C";
 				else
 					line2 += "F";
-				
-			    //TODO NEED TO MANAGE DISPLAY SPACE FOR NEGATIVE VALUES TOO
-				/**
-				if (((dTemp > 99.999) && (dTemp < 999.999)) || ((dTemp < -99.999) && (dTemp > -999.999))) { //3 integer digits! - no space for degree symbol unless there are no decimals
-					if (iNoDec)
-						line2 = " " + dec.format(dTemp)+ "\u00DF" + "C W:";
-					else
-						line2 = dec.format(dTemp)+"C W:";
-					line2 += (wBoost) ? "+" : "-";
-					line2 += " H:";
-					line2 += (hBoost) ? "+" : "-";
-					line2 += "  ";
-				} else if ((dTemp > 9.999) || (dTemp < -9.999)) { //2 integer digits
-					if (iNoDec)
-						line2 = dec.format(dTemp)+ ".0\u00DF" + "C W:";
-					else
-						line2 = dec.format(dTemp)+ "\u00DF" + "C W:";
-					//Degree symbol - The real degree symbol (\u00B0) is not in the supported char list of the display, 
-					//so this supported one is the closest match
-					line2 += (wBoost) ? "+" : "-";
-					line2 += " H:";
-					line2 += (hBoost) ? "+" : "-";
-					line2 += "  ";
-				} else { //1 digit
-					if (iNoDec)
-						line2 = " " + dec.format(dTemp) + ".0\u00DF" + "C W:";
-					else
-						line2 = " " + dec.format(dTemp) + "\u00DF" + "C W:";
-					line2 += (wBoost) ? "+" : "-";
-					line2 += " H:";
-					line2 += (hBoost) ? "+" : "-";
-					line2 += "  ";
-				}
-				/**/
 			}
 
 			/*****************************************************/
@@ -195,7 +175,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			lcd.write(LcdDisplay.LCD_LINE2, line2, LcdDisplay.CENTER);
 			
 			try {
-				Thread.sleep(1000); //TODO: This controls how responsive is the LCD. Need to adjust for production
+				Thread.sleep(LCDRefreshDelay);
 			} catch (InterruptedException e) {
 				break;
 			}
@@ -236,13 +216,34 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 	 	String getwlan0ip() {
 		    String s;
 		    Process p;
-		    String retVal = "Error:No IP!";
+		    String retVal = "";
 		    try {
 		        p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/getwlan0ip.sh");
 		        BufferedReader br = new BufferedReader(
 		            new InputStreamReader(p.getInputStream()));
 		        while ((s = br.readLine()) != null) {
-		        	retVal = s;
+		        	retVal += s;
+		        }
+		        if (retVal.length() < 7) { // Try eth0 if no wlan0 IP found. 7 is the smallest IP length (1.1.1.1)
+		        	p.waitFor();
+			        p.destroy();
+			        try {
+				        p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/geteth0ip.sh");
+				        br = new BufferedReader(
+				            new InputStreamReader(p.getInputStream()));
+				        while ((s = br.readLine()) != null) {
+				        	retVal += s;
+				        }
+				        if (retVal.length() < 7) {
+				        	retVal = "Error: No IP!"; 
+				        } else if (retVal.length() < 14) { //If there is space, add label "IP:" in front
+				        	retVal = "IP:" + retVal; 
+				        }
+				        p.waitFor();
+				        p.destroy();
+				    } catch (Exception e) {System.out.println(e);}
+		        } else if (retVal.length() < 14) { //If there is space, add label "IP:" in front
+		        	retVal = "IP:" + retVal; 
 		        }
 		        p.waitFor();
 		        //System.out.println ("exit: " + p.exitValue());
@@ -254,13 +255,18 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 	 	String getssid() {
 		    String s;
 		    Process p;
-		    String retVal = "Error:No WiFi!";
+		    String retVal = "";
 		    try {
 		        p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/getssid.sh");
 		        BufferedReader br = new BufferedReader(
 		            new InputStreamReader(p.getInputStream()));
 		        while ((s = br.readLine()) != null) {
-		        	retVal = "WiFi:"+s;
+		        	retVal += s;
+		        }
+		        if (retVal.length() < 1) {
+		        	retVal = "Error: No WiFi!"; 
+		        } else if (retVal.length() < 12) { //If there is space, add label "WiFi:" in front
+		        	retVal = "WiFi:" + retVal; 
 		        }
 		        p.waitFor();
 		        //System.out.println ("exit: " + p.exitValue());
