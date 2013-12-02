@@ -179,6 +179,10 @@ public class ControlBroker {
 		return startTime;
 	}
 	
+	public void setLastKeyPressTimeNow() {
+		startTime =  System.currentTimeMillis();
+	}
+	
 	public void increaseDesiredTemp() {
 		desired_temp = desired_temp + desired_temp_step;
 	}
@@ -355,19 +359,24 @@ public class ControlBroker {
 		if (isWaterBoostOn()) { //ON so turn off
 			System.out.println("WB:OFF");
 			waterOnBoost = false;
+			waterBoostOffTime = 0;
+			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
+			turnBacklightOn();
 			turnWaterOff();
 			return isWaterOn();
 		} else if (isHolidayPeriod()) {
 			System.out.println("WB:HOLIDAY");
+			waterBoostOffTime = 0;
 			turnWaterOff();
 			return isWaterOn();
 		} else {
 			System.out.println("WB:ON");
-			
 			long thistime = Calendar.getInstance().getTimeInMillis();
 			long boostTimeInMillis = minutes * 60 * 1000;
 			waterBoostOffTime = thistime + boostTimeInMillis;
 			waterOnBoost = true;
+			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
+			turnBacklightOn();
 			turnWaterOn();
 			return isWaterOn();
 		}
@@ -379,6 +388,14 @@ public class ControlBroker {
 	 */
 	public long getWaterBoostOffTime() {
 		return waterBoostOffTime;
+	}
+	
+	public int getWaterBoostOffMinutes() {
+		int getWaterBoostOffMinutes = 0;
+		if (waterBoostOffTime > 0) {
+			getWaterBoostOffMinutes = (int)(waterBoostOffTime-(Calendar.getInstance().getTimeInMillis()))/(60*1000);
+		}
+		return getWaterBoostOffMinutes;
 	}
 	
 	public boolean isWaterBoostOn() {
@@ -395,20 +412,25 @@ public class ControlBroker {
 		if (isHeatingBoostOn()) { //ON so turn off
 			System.out.println("HB:OFF");
 			heatingOnBoost = false;
-			//turnHeatingOff();
+			heatingBoostOffTime = 0;
+			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
+			turnBacklightOn();
+			turnHeatingOff();
 			return isHeatingOn();
 		} else if (isHolidayPeriod()) {
 			System.out.println("HB:HOLIDAY");
+			heatingBoostOffTime = 0;
 			turnHeatingOff();
 			return isHeatingOn();
 		} else {
 			System.out.println("HB:ON");
-			
 			long thistime = Calendar.getInstance().getTimeInMillis();
 			long boostTimeInMillis = minutes * 60 * 1000;
 			heatingBoostOffTime = thistime + boostTimeInMillis;
 			heatingOnBoost = true;
-			//turnHeatingOn();
+			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
+			turnBacklightOn();
+			turnHeatingOn();
 			return isHeatingOn();
 		}
 	}
@@ -419,6 +441,14 @@ public class ControlBroker {
 	 */
 	public long getHeatingBoostOffTime() {
 		return heatingBoostOffTime;
+	}
+	
+	public int getHeatingBoostOffMinutes() {
+		int getHeatingBoostOffMinutes = 0;
+		if (heatingBoostOffTime > 0) {
+			getHeatingBoostOffMinutes = (int)(heatingBoostOffTime-(Calendar.getInstance().getTimeInMillis()))/(60*1000);
+		}
+		return getHeatingBoostOffMinutes;
 	}
 	
 	public boolean isHeatingBoostOn() {

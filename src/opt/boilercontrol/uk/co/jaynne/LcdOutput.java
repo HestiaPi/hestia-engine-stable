@@ -13,21 +13,27 @@ import java.io.InputStreamReader;
 import java.text.*; //DecimalFormat
 
 public class LcdOutput extends Thread{
+	LcdDisplay lcd = LcdDisplay.getInstance();
+	ControlBroker control = ControlBroker.getInstance();
+	
+	boolean RnD = true ; //TODO Set to true for extra logging and faster testing, disable upon release
+	boolean hBoost = false;
+	boolean wBoost = false;
+	boolean heating = false;
+	boolean water = false;
+	boolean holiday = false;
+	
+	int lastScreenMode = 0;
+	int multiScreenStep = 1000; // This defines how fast the screens interchange in multiscreen mode. The actual delay is the twice this number
+	int screenQuery = 0;
+	int LCDRefreshDelay = 1000; //TODO: This controls how responsive is the LCD. Need to adjust for production
+	
 	public void run() {
-		LcdDisplay lcd = LcdDisplay.getInstance();
-		ControlBroker control = ControlBroker.getInstance();
 		String line1 = "";
 		String line2 = "";
 		int GibberishReset=0;
-		boolean RnD = true ; //TODO Set to true for extra logging and faster testing, disable upon release
-		boolean hBoost = false;
-		boolean wBoost = false;
-		boolean heating = false;
-		boolean water = false;
-		boolean holiday = false;
 		double dTemp = 0;
 		double dDesiredTemp = 0;
-		int LCDRefreshDelay = 1000; //TODO: This controls how responsive is the LCD. Need to adjust for production
 		int readTempDelay = 0;
 		
 		line1 = getssid();
@@ -96,15 +102,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			//"1234567890ABCDEF"
 			/**/
 			
-			if (!wBoost && !hBoost) {
-				line1 = time +"   No Boost";
-			} else if (wBoost && !hBoost) {
-				line1 = time +" WaterBoost";
-			} else if (!wBoost && hBoost) {
-				line1 = time +" Heat Boost";
-			} else if (wBoost && hBoost) {
-				line1 = time +" Both Boost";
-			}
+			line1 = time + " " + getLine1();
 			
 			if (holiday) {
 				line2 = "Holiday On";
@@ -124,7 +122,17 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				dDesiredTemp = control.getdesired_temp();
 				//dTemp = -201.47;
 				//System.out.printf("dTemp now is %f\n", dTemp);
-				
+				/**
+				System.out.printf("control.getWaterBoostOffTime():");
+				System.out.println(control.getWaterBoostOffTime());
+				System.out.printf("control.getWaterBoostOffMinutes():");
+				System.out.println(control.getWaterBoostOffMinutes());
+
+				System.out.printf("control.getHeatingBoostOffTime():");
+				System.out.println(control.getHeatingBoostOffTime());
+				System.out.printf("control.getHeatingBoostOffMinutes():");
+				System.out.println(control.getHeatingBoostOffMinutes());
+				/**/
 				line2 = dec.format(dTemp) + "\u00DF";
 				if (control.getuseCelsius())
 					line2 += "C";
@@ -156,7 +164,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			/*****************************************************/
 			//System.out.println("GibberishReset:"+GibberishReset);
 			// 1440 writes are around 1 hour
-			if(GibberishReset<1440)
+			if (GibberishReset<1440)
 			{
 				GibberishReset++;
 			}
@@ -184,6 +192,72 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		lcd.write(LcdDisplay.LCD_LINE2, "| Press  Reset |", LcdDisplay.CENTER);
 		lcd.close();
 		System.out.println("LCD output interrupted");
+	}
+	
+	String getLine1() {
+		//Get boost status
+		hBoost = control.isHeatingBoostOn();
+		wBoost = control.isWaterBoostOn();
+		
+		String remainingLine1 = "";
+		if (!wBoost && !hBoost) {
+			if (lastScreenMode != 1) { // Screen changed - Restart from screen1
+				screenQuery = 0;
+			}
+			remainingLine1 = "No Boost";
+			lastScreenMode = 1;
+		} else if (wBoost && !hBoost) {
+			if (lastScreenMode != 2) { // Screen changed - Restart from screen1
+				screenQuery = 0;
+			}
+			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) { // For the first multiScreenStep show the first screen
+				remainingLine1 = "Hot Water";
+			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
+				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()) + "min";
+			} else if (screenQuery*LCDRefreshDelay >= 2*multiScreenStep) {
+				remainingLine1 = "Hot Water";
+				screenQuery = 0;
+			}
+			lastScreenMode = 2;
+		} else if (!wBoost && hBoost) {
+			if (lastScreenMode != 3) { // Screen changed - Restart from screen1
+				screenQuery = 0;
+			}
+			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) {
+				remainingLine1 = "Heating";
+			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
+				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()) + "min";
+			} else if (screenQuery*LCDRefreshDelay >= 2*multiScreenStep) {
+				remainingLine1 = "Heating";
+				screenQuery = 0;
+			}
+			lastScreenMode = 3;
+		} else if (wBoost && hBoost) {
+			if (lastScreenMode != 4) { // Screen changed - Restart from screen1
+				screenQuery = 0;
+			}
+			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) {
+				remainingLine1 = "Hot Water";
+			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
+				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()) + "min";
+			} else if (screenQuery*LCDRefreshDelay < 3*multiScreenStep) {
+				remainingLine1 = "Heating";
+			} else if (screenQuery*LCDRefreshDelay < 4*multiScreenStep) {
+				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()) + "min";
+			} else if (screenQuery*LCDRefreshDelay >= 4*multiScreenStep) {
+				remainingLine1 = "Hot Water";
+				screenQuery = 0;
+			}
+			lastScreenMode = 4;
+		}
+		screenQuery++;
+		
+		// Fill any available spaces
+		for(int i=0; remainingLine1.length() < 10; i++) { // Time shown leaves 11 characters space free
+			remainingLine1 = " " + remainingLine1;
+		}
+		
+		return remainingLine1;
 	}
 
 /**	

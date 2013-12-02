@@ -39,44 +39,44 @@ public class BoostMonitor extends Thread{
 		while (!Thread.interrupted()) {			
 			status = gpio.getValue(pin);
 			try {
-			if (status == pinsHigh) {
-				control.keyPressed();
-				
-				if (control.isBacklightOn()) {
-					if (water) {
-						System.out.println("Water Boost pressed");
-						control.toggleWaterBoostStatus();
+				if (status == pinsHigh) {
+					control.keyPressed();
+					
+					if (control.isBacklightOn()) {
+						if (water) {
+							System.out.println("Water Boost pressed");
+							control.toggleWaterBoostStatus();
+						}
+						if (heating) {
+							System.out.println("Heating Boost pressed");
+							control.toggleHeatingBoostStatus();
+						}
+						if (plus) {
+							System.out.println("Plus pressed");
+							//control.toggleWaterBoostStatus();
+							control.increaseDesiredTemp();
+						}
+						if (minus) {
+							System.out.println("Minus pressed");
+							//control.toggleHeatingBoostStatus();
+							control.decreaseDesiredTemp();
+						}
 					}
-					if (heating) {
-						System.out.println("Heating Boost pressed");
-						control.toggleHeatingBoostStatus();
-					}
-					if (plus) {
-						System.out.println("Plus pressed");
-						//control.toggleWaterBoostStatus();
-						control.increaseDesiredTemp();
-					}
-					if (minus) {
-						System.out.println("Minus pressed");
-						//control.toggleHeatingBoostStatus();
-						control.decreaseDesiredTemp();
-					}
+					
+					control.turnBacklightOn();
+					Thread.sleep(200); //sleep to ignore multiple presses
+				}
+								
+				if (control.getLastKeyPressTime() > 0) {
+					elapsedTime = (new Date()).getTime() - control.getLastKeyPressTime();
+				} else {
+					elapsedTime = 0;
 				}
 				
-				control.turnBacklightOn();
-				Thread.sleep(200); //sleep to ignore multiple presses
-			}
-			
-			if (control.getLastKeyPressTime() > 0) {
-				elapsedTime = (new Date()).getTime() - control.getLastKeyPressTime();
-			} else {
-				elapsedTime = 0;
-			}
-			
-			if (elapsedTime > (bldelay*1000)) {
-				control.keyPressTimeReset();
-				control.turnBacklightOff();
-			}
+				if (elapsedTime > (bldelay*1000)) {
+					control.keyPressTimeReset();
+					control.turnBacklightOff();
+				}
 			
 			Thread.sleep(20);
 			} catch (InterruptedException e) {
