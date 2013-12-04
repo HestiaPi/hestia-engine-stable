@@ -73,23 +73,29 @@ public class Scheduler extends Thread{
 			//Change the heating controls based on the schedule
 			if (heating) { //scheduled so turn on
 				control.turnHeatingOn();
+				control.heatingOnSchedule = true;
 			} else if (control.isHeatingBoostOn() && 
 					calendar.getTimeInMillis() > control.getHeatingBoostOffTime()) {
 				//If boost is on but it is past the boost time turn off
 				control.toggleHeatingBoostStatus();
+				control.heatingOnSchedule = false;
 			} else { //no schedule or boost so turn off
 				control.turnHeatingOff();
+				control.heatingOnSchedule = false;
 			}
 			
 			//Change the water controls based on the schedule
 			if (water) { //scheduled so turn on
 				control.turnWaterOn();
+				control.waterOnSchedule = true;
 			} else if (control.isWaterBoostOn() && 
 					calendar.getTimeInMillis() > control.getWaterBoostOffTime()) {
 				//If boost is on but it is past the boost time turn off
 				control.toggleWaterBoostStatus();
+				control.waterOnSchedule = false;
 			} else { //no schedule or boost so turn off
 				control.turnWaterOff();
+				control.waterOnSchedule = false;
 			}
 
 			try {

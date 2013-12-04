@@ -112,6 +112,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				DecimalFormat dec = new DecimalFormat("###.#");
 				if (readTempDelay == 0) {
 					control.readtemperature(); //This should be the only place where readtemperature() will be called from
+					control.thermostat();
 					readTempDelay++;
 				} else if (readTempDelay < (5000/LCDRefreshDelay)) { // Re-read current temperature every 5 seconds only
 					readTempDelay++;
@@ -140,14 +141,26 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 					line2 += "F";
 				if (dTemp%1 == 0) // Make the freed space from the missing .0
 					line2 += "  ";
-				line2 += " >> "; 
-				if (dDesiredTemp%1 == 0) // Make the freed space from the missing .0
-					line2 += "  ";
-				line2 += dec.format(dDesiredTemp) + "\u00DF";
-				if (control.getuseCelsius())
-					line2 += "C";
-				else
-					line2 += "F";
+				if (control.isHeatingOn()) {
+					line2 += " >> ";
+				} else {
+					line2 += "    ";
+				}
+				
+				if ((control.isHeatingBoostOn()) || (control.isheatingOnSchedule())) {
+					if (dDesiredTemp%1 == 0) // Make the freed space from the missing .0
+						line2 += "  ";
+					line2 += dec.format(dDesiredTemp) + "\u00DF";
+					if (control.getuseCelsius())
+						line2 += "C";
+					else
+						line2 += "F";
+				} else {
+					// Nothing else to display - Fill with white spaces
+					for(int i=0; line2.length() < 16; i++) {
+						line2 += " ";
+					}
+				}
 			}
 
 			/*****************************************************/

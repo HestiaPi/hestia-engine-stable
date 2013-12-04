@@ -23,9 +23,9 @@ public class ControlBroker {
 	
 	public static GpioPin SWITCH1 = GpioPin.PIN11_GPIO17; // boost water
 	public static GpioPin SWITCH2 = GpioPin.PIN18_GPIO24; // boost heating
-	public static GpioPin SWITCH3 = GpioPin.PIN15_GPIO22; // +
+	public static GpioPin SWITCH3 = GpioPin.PIN26_GPIO7; // +
 	//public static GpioPin SWITCH4 = GpioPin.PIN21_GPIO9; // -
-	public static GpioPin SWITCH4 = GpioPin.PIN26_GPIO7; // -
+	public static GpioPin SWITCH4 = GpioPin.PIN15_GPIO22; // -
 	//DO NOT USE PIN23_GPIO11
 	
 //	private static boolean RELAY_ON = true;
@@ -37,21 +37,25 @@ public class ControlBroker {
 	private static boolean BL_RELAY_OFF = false;
 	
 	private ConfigSource config;
-	private boolean heatingOn = false;
-	private boolean heatingOnBoost = false;
+	public boolean heatingOn = false;
+	public boolean heatingOnBoost = false;
+	public boolean heatingOnSchedule = false;
 	private long heatingBoostOffTime = 0;
-	private boolean waterOn = false;
-	private boolean waterOnBoost = false;
+	public boolean waterOn = false;
+	public boolean waterOnBoost = false;
+	public boolean waterOnSchedule = false;
 	private long waterBoostOffTime = 0;
 	private boolean backlightOn = false;
 	private GpioControl gpio;
 	
     public double current_temp;
-    public double desired_temp = 22.0; //desired temperature (in Celsius) we wish to reach/keep. Default: 22.0
+    public double current_temp_reading;
+    public int incorrect_temp_readings = 10; // Dont filter the first time
+    public double desired_temp = 22.0; // desired temperature (in Celsius) we wish to reach/keep. Default: 22.0
     public double desired_temp_step = 0.5;
-	public boolean useCelsius = true; //TODO need to read this dynamically from configuration DB
+	public boolean useCelsius = true; // TODO need to read this dynamically from configuration DB
     
-	public double tempSensitivity = 1.0; //TODO this should be setup according to mode:Comfort/Economy/etc
+	public double tempSensitivity = 0; // Default:1 TODO this should be setup according to mode:Comfort/Economy/etc
 	
     public long startTime =  System.currentTimeMillis();
 	private ControlBroker() {
@@ -179,7 +183,7 @@ public class ControlBroker {
 		return startTime;
 	}
 	
-	public void setLastKeyPressTimeNow() {
+	public void setLastKeyPressTimeNow() { // Fake a keypress
 		startTime =  System.currentTimeMillis();
 	}
 	
@@ -211,7 +215,7 @@ public class ControlBroker {
 				//turnHeatingOff();
 				deactivateHeating();
 			}
-		} else {
+		} else if ((isheatingOnSchedule() || isHeatingBoostOn()) && !isHeatingOn()) {
 			if (current_temp < (desired_temp - tempSensitivity)) {
 				System.out.println("Below range > activateHeating()");
 				//turnHeatingOn();
@@ -232,7 +236,16 @@ public class ControlBroker {
 	            new InputStreamReader(p.getInputStream()));
 	        while ((s = br.readLine()) != null) {
 	        	itemp = Integer.parseInt(s);
-	        	current_temp = ((double) itemp)/1000.0;
+	        	current_temp_reading = ((double) itemp)/1000.0;
+	        	if (((current_temp_reading < current_temp - 5) || (current_temp_reading > current_temp + 5)) && (incorrect_temp_readings < 10)) {
+	        		// Incorrect reading - filter out and keep old current_temp
+	        		incorrect_temp_readings++;
+	        		break;
+	        	} else {
+	        		incorrect_temp_readings = 0;
+	        		current_temp = current_temp_reading;
+	        	}
+	        	
 	        	if (!useCelsius) {
 	        		current_temp = celsiusToFahrenheit(current_temp);
 	        	}
@@ -398,10 +411,6 @@ public class ControlBroker {
 		return getWaterBoostOffMinutes;
 	}
 	
-	public boolean isWaterBoostOn() {
-		return waterOnBoost;
-	}
-	
 	public boolean toggleHeatingBoostStatus() {
 		int boostTimeInMins = config.get("boostTime").getIntValue();
 		return toggleHeatingBoostStatus(boostTimeInMins);
@@ -451,16 +460,28 @@ public class ControlBroker {
 		return getHeatingBoostOffMinutes;
 	}
 	
-	public boolean isHeatingBoostOn() {
-		return heatingOnBoost;
-	}
-	
 	public boolean isHeatingOn() {
 		return heatingOn;
 	}
 	
+	public boolean isHeatingBoostOn() {
+		return heatingOnBoost;
+	}
+	
+	public boolean isheatingOnSchedule() {
+		return heatingOnSchedule;
+	}
+	
 	public boolean isWaterOn() {
 		return waterOn;
+	}
+	
+	public boolean isWaterBoostOn() {
+		return waterOnBoost;
+	}
+
+	public boolean iswaterOnSchedule() {
+		return waterOnSchedule;
 	}
 	
 	public boolean isBacklightOn() {

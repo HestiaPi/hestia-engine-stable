@@ -51,12 +51,12 @@ public class BoostMonitor extends Thread{
 							System.out.println("Heating Boost pressed");
 							control.toggleHeatingBoostStatus();
 						}
-						if (plus) {
+						if (plus && ((control.isHeatingBoostOn()) || (control.isheatingOnSchedule()))) {
 							System.out.println("Plus pressed");
 							//control.toggleWaterBoostStatus();
 							control.increaseDesiredTemp();
 						}
-						if (minus) {
+						if (minus && ((control.isHeatingBoostOn()) || (control.isheatingOnSchedule()))) {
 							System.out.println("Minus pressed");
 							//control.toggleHeatingBoostStatus();
 							control.decreaseDesiredTemp();
