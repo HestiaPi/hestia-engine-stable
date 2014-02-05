@@ -21,11 +21,11 @@ public class ControlBroker {
 	public static GpioPin RELAY2 = GpioPin.PIN16_GPIO23; // heating
 	public static GpioPin RELAY3 = GpioPin.PIN21_GPIO9; // backlight
 	
-	public static GpioPin SWITCH1 = GpioPin.PIN11_GPIO17; // boost water
-	public static GpioPin SWITCH2 = GpioPin.PIN18_GPIO24; // boost heating
-	public static GpioPin SWITCH3 = GpioPin.PIN26_GPIO7; // +
+	public static GpioPin SWITCH1 =  GpioPin.PIN18_GPIO24; // boost water
+	public static GpioPin SWITCH2 =  GpioPin.PIN26_GPIO7; // boost heating
+	public static GpioPin SWITCH3 =  GpioPin.PIN15_GPIO22; // +
+	public static GpioPin SWITCH4 =  GpioPin.PIN11_GPIO17; // -
 	//public static GpioPin SWITCH4 = GpioPin.PIN21_GPIO9; // -
-	public static GpioPin SWITCH4 = GpioPin.PIN15_GPIO22; // -
 	//DO NOT USE PIN23_GPIO11
 	
 //	private static boolean RELAY_ON = true;
