@@ -231,7 +231,7 @@ public class ControlBroker {
 	    boolean retVal = false;
 
 	    try {
-	    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperature.sh");
+	    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperaturedht11.sh");
 	        BufferedReader br = new BufferedReader(
 	            new InputStreamReader(p.getInputStream()));
 	        while ((s = br.readLine()) != null) {
