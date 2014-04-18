@@ -36,6 +36,9 @@ public class ControlBroker {
 	private static boolean BL_RELAY_ON = true;
 	private static boolean BL_RELAY_OFF = false;
 	
+	//If DHT11 is used instead of DS18B20
+	private static boolean DHT11 = false;
+	
 	private ConfigSource config;
 	public boolean heatingOn = false;
 	public boolean heatingOnBoost = false;
@@ -231,7 +234,11 @@ public class ControlBroker {
 	    boolean retVal = false;
 
 	    try {
-	    	p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperaturedht11.sh");
+	    	if(DHT11) {
+	    		p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperaturedht11.sh");
+	    	} else {
+	    		p = Runtime.getRuntime().exec("/opt/boilercontrol/scripts/gettemperature.sh");
+	    	}
 	        BufferedReader br = new BufferedReader(
 	            new InputStreamReader(p.getInputStream()));
 	        while ((s = br.readLine()) != null) {
