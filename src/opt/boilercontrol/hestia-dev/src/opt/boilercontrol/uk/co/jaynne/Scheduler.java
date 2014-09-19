@@ -17,7 +17,7 @@ public class Scheduler extends Thread{
 			//Heating and water default to off
 			Calendar calendar = Calendar.getInstance();
 			
-			/**
+			/**/
 			TimeZone z = calendar.getTimeZone();
 		    int offset = z.getRawOffset();
 		    if(z.inDaylightTime(new Date())){
@@ -55,7 +55,7 @@ public class Scheduler extends Thread{
 						//if in active period
 						int timeOnMins = (schedule.getHourOn() * 60) + schedule.getMinuteOn();
 						int timeOffMins = (schedule.getHourOff() * 60) + schedule.getMinuteOff();
-						if (minute >= timeOnMins && minute < timeOffMins) { //Including starting minute, excluding ending minute
+						if (minute >= timeOnMins && minute <= timeOffMins) {
 							System.out.print(" **ACTIVE**");
 							//Only update the h/w status if they are false
 							heating = (heating) ? heating : schedule.getHeatingOn();

@@ -322,7 +322,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				        	retVal += s;
 				        }
 				        if (retVal.length() < 7) {
-				        	retVal = "Offline (No IP)"; 
+				        	retVal = "Error: No IP!"; 
 				        } else if (retVal.length() < 14) { //If there is space, add label "IP:" in front
 				        	retVal = "IP:" + retVal; 
 				        }
@@ -351,7 +351,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		        	retVal += s;
 		        }
 		        if (retVal.length() < 1) {
-		        	retVal = "WiFi inactive";
+		        	retVal = "Error: No WiFi!"; 
 		        } else if (retVal.length() < 12) { //If there is space, add label "WiFi:" in front
 		        	retVal = "WiFi:" + retVal; 
 		        }
