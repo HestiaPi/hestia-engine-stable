@@ -7,6 +7,7 @@ if [ $# -eq 0 ]
   then
     echo "Usage: sudo ./gitcreateinitcopyandcommit.sh \"<YOUR-COMMIT-COMMENT-HERE>\""
   else
+    cd /home/pi/git;
     rm -rf hestia-dev;
     mkdir hestia-dev;
     cd hestia-dev;
