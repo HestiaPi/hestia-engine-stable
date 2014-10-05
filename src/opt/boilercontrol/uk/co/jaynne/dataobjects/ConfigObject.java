@@ -11,6 +11,7 @@ public class ConfigObject {
 	private boolean boolValue = false;
 	private int intValue = 0;
 	private long longValue = 0;
+	private float floatValue = 0.00f;
 	
 	/**
 	 * Create a config item with a string type
@@ -42,6 +43,12 @@ public class ConfigObject {
 		this.longValue = longValue;
 	}
 
+	public ConfigObject(String key, float floatValue) {
+		this.key = key;
+		this.type = "float";
+		this.floatValue = floatValue;
+	}
+	
 	public String getKey() {
 		return key;
 	}
@@ -64,5 +71,9 @@ public class ConfigObject {
 	
 	public long getLongValue() {
 		return longValue;
+	}
+	
+	public float getFloatValue() {
+		return floatValue;
 	}
 }

@@ -226,7 +226,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) { // For the first multiScreenStep show the first screen
 				remainingLine1 = "Hot Water";
 			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
-				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()) + "min";
+				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay >= 2*multiScreenStep) {
 				remainingLine1 = "Hot Water";
 				screenQuery = 0;
@@ -239,7 +239,7 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) {
 				remainingLine1 = "Heating";
 			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
-				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()) + "min";
+				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay >= 2*multiScreenStep) {
 				remainingLine1 = "Heating";
 				screenQuery = 0;
@@ -252,11 +252,11 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) {
 				remainingLine1 = "Hot Water";
 			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
-				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()) + "min";
+				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay < 3*multiScreenStep) {
 				remainingLine1 = "Heating";
 			} else if (screenQuery*LCDRefreshDelay < 4*multiScreenStep) {
-				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()) + "min";
+				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay >= 4*multiScreenStep) {
 				remainingLine1 = "Hot Water";
 				screenQuery = 0;

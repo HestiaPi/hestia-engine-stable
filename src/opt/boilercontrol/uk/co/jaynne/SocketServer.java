@@ -165,6 +165,8 @@ public class SocketServer extends Thread {
 						Long.toString(broker.getHeatingBoostOffTime()));
 				result.put("WaterBoostTime", 
 						Long.toString(broker.getWaterBoostOffTime()));
+				result.put("DesiredTemp", 
+						String.valueOf(broker.getdesired_temp()));
 				return result;
 			default :
 				result.put("Result", "ERROR");

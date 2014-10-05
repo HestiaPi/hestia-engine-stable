@@ -41,6 +41,9 @@ public class ConfigSqlSource implements ConfigSource{
 					case "boolean": 
 						object = new ConfigObject(key, Boolean.parseBoolean(value));
 						break;
+					case "float": 
+						object = new ConfigObject(key, Float.parseFloat(value));
+						break;
 					default: 
 						object = new ConfigObject(key, value); //must be string
 						break;
@@ -98,5 +101,13 @@ public class ConfigSqlSource implements ConfigSource{
 	 */
 	public int set(String key, long value) {
 		return set(key, Long.toString(value), "long");
+	}
+	
+	/**
+	 * Update a float item
+	 * @param key the items key
+	 */
+	public int set(String key, float value) {
+		return set(key, Float.toString(value), "float");
 	}	
 }

@@ -54,8 +54,8 @@ public class ControlBroker {
     public double current_temp;
     public double current_temp_reading;
     public int incorrect_temp_readings = 10; // Dont filter the first time
-    public double desired_temp = 22.0; // desired temperature (in Celsius) we wish to reach/keep. Default: 22.0
-    public double desired_temp_step = 0.5;
+    public float desired_temp = 22.00f; // desired temperature (in Celsius) we wish to reach/keep. Default: 22.0
+    public float desired_temp_step = 0.50f;
 	public boolean useCelsius = true; // TODO need to read this dynamically from configuration DB
     
 	public double tempSensitivity = 0; // Default:1 TODO this should be setup according to mode:Comfort/Economy/etc
@@ -192,17 +192,33 @@ public class ControlBroker {
 	
 	public void increaseDesiredTemp() {
 		desired_temp = desired_temp + desired_temp_step;
+		ConfigSource config = new ConfigSqlSource();
+		config.set("desiredTemp", desired_temp);
 	}
 	
 	public void decreaseDesiredTemp() {
 		desired_temp = desired_temp - desired_temp_step;
+		ConfigSource config = new ConfigSqlSource();
+		config.set("desiredTemp", desired_temp);
 	}
 	
 	public double getcurrent_temp() {
 		return current_temp;
 	}
-	
+/**	
 	public double getdesired_temp() {
+		return desired_temp;
+	}
+**/	
+	public float getdesired_temp() {
+System.out.println("getdesired_temp() enter: desired_temp=");
+System.out.println(desired_temp);
+		ConfigObject desiredTemp = config.get("desiredTemp");
+		if (desiredTemp != null) {
+			desired_temp = desiredTemp.getFloatValue();
+		} // else return desired_temp default value from initialisation
+System.out.println("getdesired_temp() exit: desired_temp=");
+System.out.println(desired_temp);
 		return desired_temp;
 	}
 	

@@ -16,4 +16,6 @@ public interface ConfigSource {
 	public int set(String key, boolean value);
 	
 	public int set(String key, long value);
+	
+	public int set(String key, float value);
 }
