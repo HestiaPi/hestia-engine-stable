@@ -13,13 +13,14 @@ public class ScheduleObject{
 	private int hourOff = 0;
 	private int minuteOff = 0;
 	private boolean heatingOn = false;
+	private float TempSet = 22.00f;
 	private boolean waterOn = false;
 	private boolean enabled = false;
 	private String sday = "";  
 	
 	
 	public ScheduleObject(int id, int group, int day, int hourOn, int minuteOn, 
-			int hourOff, int minuteOff, boolean heatingOn, boolean waterOn, 
+			int hourOff, int minuteOff, boolean heatingOn, float TempSet, boolean waterOn, 
 			boolean enabled) {
 		this.id = id;
 		this.group = group;
@@ -29,6 +30,7 @@ public class ScheduleObject{
 		this.hourOff = hourOff;
 		this.minuteOff = minuteOff;
 		this.heatingOn = heatingOn;
+		this.TempSet = TempSet;
 		this.waterOn = waterOn;
 		this.enabled = enabled;
 	}
@@ -80,8 +82,7 @@ public class ScheduleObject{
 	public int getMinuteOff() {
 		return minuteOff;
 	}
-
-
+	
 	/**
 	 * @return the heatingOn
 	 */
@@ -89,6 +90,12 @@ public class ScheduleObject{
 		return heatingOn;
 	}
 
+	/**
+	 * @return the TempSet
+	 */
+	public float getTempSet() {
+		return TempSet;
+	}
 
 	/**
 	 * @return the waterOn
@@ -144,7 +151,7 @@ public class ScheduleObject{
 			break;	
 		}
 		return sday + ": Period:" + hourOn + ":" + minuteOn + " - " + 
-				hourOff + ":" + minuteOff + ", H: " + heatingOn + ", W: " + 
+				hourOff + ":" + minuteOff + ", H: " + heatingOn + ", Set to: " + TempSet+ "C, W: " + 
 				waterOn + ", Group:" + group + ", Enabled:" + enabled;
 	}
 }

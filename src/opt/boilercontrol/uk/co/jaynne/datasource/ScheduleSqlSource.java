@@ -21,6 +21,7 @@ public class ScheduleSqlSource implements ScheduleSource{
 	private static String MINUTEON = "minuteOn";
 	private static String HOUROFF = "hourOff";
 	private static String MINUTEOFF = "minuteOff";
+	private static String TEMPERATURE = "temperature";
 	private static String HEATINGON = "heatingOn";
 	private static String WATERON = "waterOn";
 	private static String ENABLED = "enabled";
@@ -81,6 +82,7 @@ public class ScheduleSqlSource implements ScheduleSource{
 					rs.getInt(HOUROFF),
 					rs.getInt(MINUTEOFF),
 					rs.getBoolean(HEATINGON),
+					rs.getFloat(TEMPERATURE),
 					rs.getBoolean(WATERON),
 					rs.getBoolean(ENABLED));
 		} catch (SQLException e) {
@@ -102,6 +104,7 @@ public class ScheduleSqlSource implements ScheduleSource{
 				 "`" + HOUROFF + "` = '" + schedule.getHourOff() + "', " +
 				 "`" + MINUTEOFF + "` = '" + schedule.getMinuteOff() + "', " +
 				 "`" + HEATINGON + "` = '" + (schedule.getHeatingOn() ? 1 : 0) + "', " +
+				 "`" + TEMPERATURE + "` = '" + schedule.getTempSet() + "', " +
 				 "`" + WATERON + "` = '" + (schedule.getWaterOn() ? 1 : 0) + "', " +
 		 		 "`" + ENABLED + "` = '" + (schedule.getEnabled() ? 1 : 0) + "'";
 				

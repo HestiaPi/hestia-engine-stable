@@ -168,8 +168,16 @@ public class ControlBroker {
 	}
 	
 	public boolean toggleWaterBoostStatus() {
-		int boostTimeInMins = config.get("boostTime").getIntValue();
+		int boostTimeInMins = config.get("boostTimeW").getIntValue();
 		return toggleWaterBoostStatus(boostTimeInMins);
+	}
+	
+	public int getboostTimeH() {
+		return config.get("boostTimeH").getIntValue();
+	}
+	
+	public int getboostTimeW() {
+		return config.get("boostTimeW").getIntValue();
 	}
 	
 	public boolean keyPressed () {
@@ -211,15 +219,20 @@ public class ControlBroker {
 	}
 **/	
 	public float getdesired_temp() {
-System.out.println("getdesired_temp() enter: desired_temp=");
+System.out.print("getdesired_temp() enter: desired_temp=");
 System.out.println(desired_temp);
 		ConfigObject desiredTemp = config.get("desiredTemp");
 		if (desiredTemp != null) {
 			desired_temp = desiredTemp.getFloatValue();
 		} // else return desired_temp default value from initialisation
-System.out.println("getdesired_temp() exit: desired_temp=");
-System.out.println(desired_temp);
 		return desired_temp;
+	}
+	
+	public void setdesired_temp(float temp)
+	{
+		ConfigSource config = new ConfigSqlSource();
+		config.set("desiredTemp", temp);
+		desired_temp = temp;
 	}
 	
 	public boolean getuseCelsius() {
@@ -414,6 +427,8 @@ System.out.println(desired_temp);
 			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
 			turnBacklightOn();
 			turnWaterOn();
+			ConfigSource config = new ConfigSqlSource();
+			config.set("boostTimeW", minutes);
 			return isWaterOn();
 		}
 	}
@@ -435,7 +450,7 @@ System.out.println(desired_temp);
 	}
 	
 	public boolean toggleHeatingBoostStatus() {
-		int boostTimeInMins = config.get("boostTime").getIntValue();
+		int boostTimeInMins = config.get("boostTimeH").getIntValue();
 		return toggleHeatingBoostStatus(boostTimeInMins);
 	}
 	
@@ -463,6 +478,8 @@ System.out.println(desired_temp);
 			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
 			turnBacklightOn();
 			turnHeatingOn();
+			ConfigSource config = new ConfigSqlSource();
+			config.set("boostTimeH", minutes);
 			return isHeatingOn();
 		}
 	}

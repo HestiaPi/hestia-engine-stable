@@ -46,6 +46,7 @@ public class Scheduler extends Thread{
 				System.out.println("Time: " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
 				System.out.println("WB: " + control.isWaterBoostOn() + ", WB Finish: " + control.getWaterBoostOffTime());
 				System.out.println("HB: " + control.isHeatingBoostOn() + ", HB Finish: " + control.getHeatingBoostOffTime());
+				System.out.println("Currently Desired Temp Set to: " + control.getdesired_temp());
 				
 				//Loop through all of todays schedules
 				for (ScheduleObject schedule : schedules) {
@@ -57,6 +58,7 @@ public class Scheduler extends Thread{
 						int timeOffMins = (schedule.getHourOff() * 60) + schedule.getMinuteOff();
 						if (minute >= timeOnMins && minute < timeOffMins) { //Including starting minute, excluding ending minute
 							System.out.print(" **ACTIVE**");
+							control.setdesired_temp(schedule.getTempSet());
 							//Only update the h/w status if they are false
 							heating = (heating) ? heating : schedule.getHeatingOn();
 							water = (water) ? water : schedule.getWaterOn();
