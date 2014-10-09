@@ -113,13 +113,19 @@ public class SocketServer extends Thread {
 	private HashMap<String,String> boost(HashMap<String,String> args) {
 		HashMap<String,String> result = new HashMap<String,String>();
 		String system = args.get("boost");
-		
-		if (!args.containsKey("time")) {
-			result.put("Result", "ERROR");
-			result.put("Message", "Invalid arguments");
-			return result;
+
+		/* Time is not mandatory anymore. [inc/dec]DesiredTemp comes without time */
+		int time = 0;
+		if ((system.equals("heating")) || (system.equals("water"))) {
+			if (!args.containsKey("time")) {
+				result.put("Result", "ERROR");
+				result.put("Message", "Invalid arguments");
+				return result;
+			} else {
+				time = Integer.parseInt(args.get("time"));
+			}
 		}
-		int time = Integer.parseInt(args.get("time"));
+		
 		switch (system) {
 			case "heating" :
 				boolean heating = broker.toggleHeatingBoostStatus(time);
@@ -135,6 +141,7 @@ public class SocketServer extends Thread {
 			case "water" :
 				boolean water = broker.toggleWaterBoostStatus(time);
 				result.put("Result", "OK");
+				
 				if (water) {
 					result.put("Water", "ON");
 					result.put("WaterBoost", "ON");
@@ -142,6 +149,14 @@ public class SocketServer extends Thread {
 					result.put("Water", "OFF");
 					result.put("WaterBoost", "OFF");
 				}
+				return result;
+			case "incdesiredtemp" :
+				broker.increaseDesiredTemp();
+				result.put("Result", "OK");
+				return result;
+			case "decdesiredtemp" :
+				broker.decreaseDesiredTemp();
+				result.put("Result", "OK");
 				return result;
 			default :
 				result.put("Result", "ERROR");
