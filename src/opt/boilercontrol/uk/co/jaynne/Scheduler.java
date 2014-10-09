@@ -58,7 +58,11 @@ public class Scheduler extends Thread{
 						int timeOffMins = (schedule.getHourOff() * 60) + schedule.getMinuteOff();
 						if (minute >= timeOnMins && minute < timeOffMins) { //Including starting minute, excluding ending minute
 							System.out.print(" **ACTIVE**");
-							control.setdesired_temp(schedule.getTempSet());
+							//If Boost is ON or desired_temp was manually changed do not overwrite boost desired_temp with scheduled
+							if ((!control.isHeatingBoostOn()) && (!control.ismanual_desired_tempOn())) {
+								System.out.println("Overwriting current desired_temp with scheduled");
+								control.setdesired_temp(schedule.getTempSet());
+							}
 							//Only update the h/w status if they are false
 							heating = (heating) ? heating : schedule.getHeatingOn();
 							water = (water) ? water : schedule.getWaterOn();
@@ -76,14 +80,20 @@ public class Scheduler extends Thread{
 			if (heating) { //scheduled so turn on
 				control.turnHeatingOn();
 				control.heatingOnSchedule = true;
+				if (calendar.getTimeInMillis() > control.getHeatingBoostOffTime()) {
+					control.toggleHeatingBoostStatus();
+					control.manual_desired_temp = false;
+				}
 			} else if (control.isHeatingBoostOn() && 
 					calendar.getTimeInMillis() > control.getHeatingBoostOffTime()) {
 				//If boost is on but it is past the boost time turn off
 				control.toggleHeatingBoostStatus();
 				control.heatingOnSchedule = false;
+				control.manual_desired_temp = false;
 			} else { //no schedule or boost so turn off
 				control.turnHeatingOff();
 				control.heatingOnSchedule = false;
+				control.manual_desired_temp = false;
 			}
 			
 			//Change the water controls based on the schedule

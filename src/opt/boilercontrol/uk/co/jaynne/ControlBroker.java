@@ -56,6 +56,7 @@ public class ControlBroker {
     public int incorrect_temp_readings = 10; // Dont filter the first time
     public float desired_temp = 22.00f; // desired temperature (in Celsius) we wish to reach/keep. Default: 22.0
     public float desired_temp_step = 0.50f;
+    public boolean manual_desired_temp = false;
 	public boolean useCelsius = true; // TODO need to read this dynamically from configuration DB
     
 	public double tempSensitivity = 0; // Default:1 TODO this should be setup according to mode:Comfort/Economy/etc
@@ -92,7 +93,9 @@ public class ControlBroker {
 		if (isHolidayPeriod()) {
 			return false;
 		}
-		return activateHeating();
+		//return activateHeating();
+		thermostat();
+		return true;
 	}
 	
 	public boolean activateHeating() {
@@ -202,25 +205,24 @@ public class ControlBroker {
 		desired_temp = desired_temp + desired_temp_step;
 		ConfigSource config = new ConfigSqlSource();
 		config.set("desiredTemp", desired_temp);
+		manual_desired_temp = true;
+		System.out.println("******increaseDesiredTemp(): manual_desired_temp="+manual_desired_temp);
 	}
 	
 	public void decreaseDesiredTemp() {
 		desired_temp = desired_temp - desired_temp_step;
 		ConfigSource config = new ConfigSqlSource();
 		config.set("desiredTemp", desired_temp);
+		manual_desired_temp = true;
+		System.out.println("******decreaseDesiredTemp(): manual_desired_temp="+manual_desired_temp);
 	}
 	
 	public double getcurrent_temp() {
 		return current_temp;
 	}
-/**	
-	public double getdesired_temp() {
-		return desired_temp;
-	}
-**/	
+
 	public float getdesired_temp() {
-System.out.print("getdesired_temp() enter: desired_temp=");
-System.out.println(desired_temp);
+System.out.println("getdesired_temp() enter: desired_temp="+desired_temp);
 		ConfigObject desiredTemp = config.get("desiredTemp");
 		if (desiredTemp != null) {
 			desired_temp = desiredTemp.getFloatValue();
@@ -460,6 +462,7 @@ System.out.println(desired_temp);
 			System.out.println("HB:OFF");
 			heatingOnBoost = false;
 			heatingBoostOffTime = 0;
+			manual_desired_temp = false;
 			setLastKeyPressTimeNow(); // In case boost was selected from web GUI
 			turnBacklightOn();
 			turnHeatingOff();
@@ -467,6 +470,7 @@ System.out.println(desired_temp);
 		} else if (isHolidayPeriod()) {
 			System.out.println("HB:HOLIDAY");
 			heatingBoostOffTime = 0;
+			manual_desired_temp = false;
 			turnHeatingOff();
 			return isHeatingOn();
 		} else {
@@ -510,6 +514,10 @@ System.out.println(desired_temp);
 	
 	public boolean isheatingOnSchedule() {
 		return heatingOnSchedule;
+	}
+	
+	public boolean ismanual_desired_tempOn() {
+		return manual_desired_temp;
 	}
 	
 	public boolean isWaterOn() {
