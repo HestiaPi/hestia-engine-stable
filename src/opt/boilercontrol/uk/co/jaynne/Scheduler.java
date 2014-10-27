@@ -80,7 +80,8 @@ public class Scheduler extends Thread{
 			if (heating) { //scheduled so turn on
 				control.turnHeatingOn();
 				control.heatingOnSchedule = true;
-				if (calendar.getTimeInMillis() > control.getHeatingBoostOffTime()) {
+				if (control.isHeatingBoostOn() && ((calendar.getTimeInMillis() > control.getHeatingBoostOffTime()) && (control.getHeatingBoostOffTime() > 0))) {
+					//If boost is on but it is past the boost time turn off boost (but leave it scheduled on)
 					control.toggleHeatingBoostStatus();
 					control.manual_desired_temp = false;
 				}
@@ -100,6 +101,10 @@ public class Scheduler extends Thread{
 			if (water) { //scheduled so turn on
 				control.turnWaterOn();
 				control.waterOnSchedule = true;
+				if (control.isWaterBoostOn() && ((calendar.getTimeInMillis() > control.getWaterBoostOffTime()) && (control.getWaterBoostOffTime() > 0))) {
+					//If boost is on but it is past the boost time turn off boost (but leave it scheduled on)
+					control.toggleWaterBoostStatus();
+				}
 			} else if (control.isWaterBoostOn() && 
 					calendar.getTimeInMillis() > control.getWaterBoostOffTime()) {
 				//If boost is on but it is past the boost time turn off

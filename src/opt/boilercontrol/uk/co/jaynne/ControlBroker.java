@@ -206,7 +206,6 @@ public class ControlBroker {
 		ConfigSource config = new ConfigSqlSource();
 		config.set("desiredTemp", desired_temp);
 		manual_desired_temp = true;
-		System.out.println("******increaseDesiredTemp(): manual_desired_temp="+manual_desired_temp);
 	}
 	
 	public void decreaseDesiredTemp() {
@@ -214,7 +213,6 @@ public class ControlBroker {
 		ConfigSource config = new ConfigSqlSource();
 		config.set("desiredTemp", desired_temp);
 		manual_desired_temp = true;
-		System.out.println("******decreaseDesiredTemp(): manual_desired_temp="+manual_desired_temp);
 	}
 	
 	public double getcurrent_temp() {
@@ -222,7 +220,6 @@ public class ControlBroker {
 	}
 
 	public float getdesired_temp() {
-System.out.println("getdesired_temp() enter: desired_temp="+desired_temp);
 		ConfigObject desiredTemp = config.get("desiredTemp");
 		if (desiredTemp != null) {
 			desired_temp = desiredTemp.getFloatValue();
