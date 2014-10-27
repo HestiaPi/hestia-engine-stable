@@ -91,7 +91,7 @@ public class Scheduler extends Thread{
 				control.toggleHeatingBoostStatus();
 				control.heatingOnSchedule = false;
 				control.manual_desired_temp = false;
-			} else { //no schedule or boost so turn off
+			} else if (control.isHeatingOn()) { //no schedule or boost so if on, turn off
 				control.turnHeatingOff();
 				control.heatingOnSchedule = false;
 				control.manual_desired_temp = false;
@@ -110,7 +110,7 @@ public class Scheduler extends Thread{
 				//If boost is on but it is past the boost time turn off
 				control.toggleWaterBoostStatus();
 				control.waterOnSchedule = false;
-			} else { //no schedule or boost so turn off
+			} else if (control.isWaterOn()) { //no schedule or boost so if on, turn off
 				control.turnWaterOff();
 				control.waterOnSchedule = false;
 			}
