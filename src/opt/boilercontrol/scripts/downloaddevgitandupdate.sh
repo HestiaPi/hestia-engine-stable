@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+if (( `id -u` != 0 )); then { MSG="Sorry, must be root.  Exiting..."; echo $MSG; exit; } fi
 
 sudo service boilercontrol stop
 cd /home/pi
