@@ -224,11 +224,11 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				screenQuery = 0;
 			}
 			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) { // For the first multiScreenStep show the first screen
-				remainingLine1 = "Hot Water";
+				remainingLine1 = getlabel2();
 			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
 				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay >= 2*multiScreenStep) {
-				remainingLine1 = "Hot Water";
+				remainingLine1 = getlabel2();
 				screenQuery = 0;
 			}
 			lastScreenMode = 2;
@@ -237,11 +237,11 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				screenQuery = 0;
 			}
 			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) {
-				remainingLine1 = "Heating";
+				remainingLine1 = getlabel1();
 			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
 				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay >= 2*multiScreenStep) {
-				remainingLine1 = "Heating";
+				remainingLine1 = getlabel1();
 				screenQuery = 0;
 			}
 			lastScreenMode = 3;
@@ -250,15 +250,15 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 				screenQuery = 0;
 			}
 			if (screenQuery*LCDRefreshDelay < 1*multiScreenStep) {
-				remainingLine1 = "Hot Water";
+				remainingLine1 = getlabel2();
 			} else if (screenQuery*LCDRefreshDelay < 2*multiScreenStep) {
 				remainingLine1 = Integer.toString(control.getWaterBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay < 3*multiScreenStep) {
-				remainingLine1 = "Heating";
+				remainingLine1 = getlabel1();
 			} else if (screenQuery*LCDRefreshDelay < 4*multiScreenStep) {
 				remainingLine1 = Integer.toString(control.getHeatingBoostOffMinutes()+1) + "min";
 			} else if (screenQuery*LCDRefreshDelay >= 4*multiScreenStep) {
-				remainingLine1 = "Hot Water";
+				remainingLine1 = getlabel2();
 				screenQuery = 0;
 			}
 			lastScreenMode = 4;
@@ -357,6 +357,40 @@ cal.add(Calendar.MINUTE, (-offsetMins));
 		        }
 		        p.waitFor();
 		        //System.out.println ("exit: " + p.exitValue());
+		        p.destroy();
+		    } catch (Exception e) {System.out.println(e);}
+		    return retVal;
+		}
+	 	
+	 	String getlabel1() {
+		    String s;
+		    Process p;
+		    String retVal = "";
+		    try {
+		        p = Runtime.getRuntime().exec("cat /opt/boilercontrol/scripts/label1");
+		        BufferedReader br = new BufferedReader(
+		            new InputStreamReader(p.getInputStream()));
+		        while ((s = br.readLine()) != null) {
+		        	retVal += s;
+		        }
+		        p.waitFor();
+		        p.destroy();
+		    } catch (Exception e) {System.out.println(e);}
+		    return retVal;
+		}
+	 	
+	 	String getlabel2() {
+		    String s;
+		    Process p;
+		    String retVal = "";
+		    try {
+		        p = Runtime.getRuntime().exec("cat /opt/boilercontrol/scripts/label2");
+		        BufferedReader br = new BufferedReader(
+		            new InputStreamReader(p.getInputStream()));
+		        while ((s = br.readLine()) != null) {
+		        	retVal += s;
+		        }
+		        p.waitFor();
 		        p.destroy();
 		    } catch (Exception e) {System.out.println(e);}
 		    return retVal;
